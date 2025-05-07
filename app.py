@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 import datetime
 import webbrowser
 import requests
@@ -9,13 +10,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
 # Get API key for text generation (Nemo Mistral)
 text_api_key = "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"
 
-# In-memory chat history (shared for the session)
+# In-memory chat history
 chat_memory = []
-MAX_MEMORY = 100  # Store last 100 messages (user + assistant)
+MAX_MEMORY = 100
 
 # Function to query the Nemo Mistral API with memory
 def ask_ai_with_memory(memory_messages):
@@ -42,7 +44,7 @@ def ask_ai_with_memory(memory_messages):
 
 @app.route('/')
 def index():
-    return render_template('index.html')  # Your HTML page with a form to send queries
+    return render_template('index.html')
 
 @app.route('/ask', methods=['POST'])
 def handle_query():
@@ -50,12 +52,10 @@ def handle_query():
     response = None
 
     if instruction:
-        # Handle fixed commands directly
         if 'your name' in instruction:
             response = "My name is JARVIS."
         elif 'shivam' in instruction:
             response = "MR. Shivam is my developer."
-        
         elif 'date' in instruction:
             response = datetime.datetime.now().strftime('%B %d, %Y')
         elif 'open youtube' in instruction:
@@ -68,15 +68,11 @@ def handle_query():
             webbrowser.open("https://youtu.be/IrZC5H5ZSm8?si=SWddD_ohU8xW65Lw")
             response = "Playing music"
         else:
-            # Add user message to memory
             chat_memory.append({"role": "user", "content": instruction})
             if len(chat_memory) > MAX_MEMORY:
                 chat_memory[:] = chat_memory[-MAX_MEMORY:]
 
-            # Ask AI with full memory
             response_text = ask_ai_with_memory(chat_memory)
-
-            # Add assistant's response to memory
             chat_memory.append({"role": "assistant", "content": response_text})
             if len(chat_memory) > MAX_MEMORY:
                 chat_memory[:] = chat_memory[-MAX_MEMORY:]
