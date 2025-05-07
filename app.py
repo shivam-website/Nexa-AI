@@ -3,16 +3,11 @@ from flask_cors import CORS
 import datetime
 import webbrowser
 import requests
-import os
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
-# Get API key for text generation (Nemo Mistral)
+# Hardcoded API key for text generation (Nemo Mistral)
 text_api_key = "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"
 
 # In-memory chat history
@@ -85,4 +80,4 @@ def handle_query():
     return jsonify({"response": response.replace("\n", "\n\n")})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
