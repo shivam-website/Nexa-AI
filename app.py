@@ -8,14 +8,16 @@ app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
 # Hardcoded API key for text generation (Nemo Mistral)
-text_api_key = "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"
+text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
 MAX_MEMORY = 100
 
+import requests
+
 # Function to query the Nemo Mistral API with memory
-def ask_ai_with_memory(memory_messages):
+def ask_ai_with_memory(memory_messages, text_api_key):
     try:
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
@@ -24,18 +26,34 @@ def ask_ai_with_memory(memory_messages):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "mistral/ministral-8b",
+                "model": "mistral/ministral-8b",  # Ensure this is the correct model name
                 "messages": memory_messages,
                 "temperature": 0.7
             },
             timeout=30
         )
+        # Check if the response was successful
         response.raise_for_status()
+
+        # Parse and return the content of the response
         return response.json()["choices"][0]["message"]["content"].strip()
-    except requests.exceptions.RequestException as e:
-        return f"API Error: {str(e)}"
+
+    except requests.exceptions.HTTPError as http_err:
+        # Specifically handle Unauthorized (401)
+        if http_err.response.status_code == 401:
+            return "Unauthorized: Please check your API key."
+        # Handle other HTTP errors (e.g., 404, 500)
+        return f"HTTP Error: {http_err.response.status_code} - {http_err.response.text}"
+
+    except requests.exceptions.RequestException as req_err:
+        # General request errors (e.g., timeout, connection error)
+        return f"API Error: {str(req_err)}"
+    
     except KeyError:
-        return "Error processing API response"
+        # In case the response format changes or is unexpected
+        return "Error processing API response. The response format may have changed."
+
+
 
 @app.route('/')
 def index():
