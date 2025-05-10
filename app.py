@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
 # Hardcoded API key for text generation (Nemo Mistral)
-text_api_key = "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"
+text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
