@@ -24,7 +24,7 @@ def ask_ai_with_memory(memory_messages):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "mistralai/ministral-8b",
+                "model": "mistral/ministral-8b",
                 "messages": memory_messages,
                 "temperature": 0.7
             },
