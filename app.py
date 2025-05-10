@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
 # Hardcoded API key for Gemini (replace this with your actual key)
-text_api_key = "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"
+text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
