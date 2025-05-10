@@ -8,14 +8,14 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
-# Hardcoded API key for Gemini (replace this with your actual key)
+# Hardcoded API key for Qwen3 (replacing with your new key)
 text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
 MAX_MEMORY = 100
 
-# Function to query the Google Gemini 2.5 Pro Preview API with memory
+# Function to query the API with memory
 def ask_ai_with_memory(memory_messages, text_api_key):
     try:
         response = requests.post(
@@ -25,7 +25,7 @@ def ask_ai_with_memory(memory_messages, text_api_key):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "google/gemini-2.5-pro-preview",  # Updated model for Google Gemini
+                "model": "google/gemini-2.5-pro-preview",  # Model for Gemini API (or use the appropriate model name)
                 "messages": memory_messages,
                 "temperature": 0.7
             },
@@ -33,6 +33,9 @@ def ask_ai_with_memory(memory_messages, text_api_key):
         )
         # Check if the response was successful
         response.raise_for_status()
+
+        # Log the response for debugging
+        print("API Response: ", response.json())  # Log the entire response to inspect its structure
 
         # Parse and return the content of the response
         return response.json()["choices"][0]["message"]["content"].strip()
