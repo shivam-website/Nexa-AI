@@ -1,22 +1,21 @@
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
+import os
 import datetime
 import webbrowser
 import requests
+from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
-# Hardcoded API key for text generation (Nemo Mistral)
-text_api_key = "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"
+# Hardcoded API key for Qwen3 (you can replace this with your actual key)
+text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
 MAX_MEMORY = 100
 
-import requests
-
-# Function to query the Nemo Mistral API with memory
+# Function to query the Qwen3 API with memory
 def ask_ai_with_memory(memory_messages, text_api_key):
     try:
         response = requests.post(
@@ -26,7 +25,7 @@ def ask_ai_with_memory(memory_messages, text_api_key):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "mistral/ministral-8b",  # Ensure this is the correct model name
+                "model": "qwen/qwen3-30b-a3b:free",  # Updated model for Qwen3-30b-a3b
                 "messages": memory_messages,
                 "temperature": 0.7
             },
@@ -52,7 +51,6 @@ def ask_ai_with_memory(memory_messages, text_api_key):
     except KeyError:
         # In case the response format changes or is unexpected
         return "Error processing API response. The response format may have changed."
-
 
 
 @app.route('/')
@@ -85,7 +83,7 @@ def handle_query():
             if len(chat_memory) > MAX_MEMORY:
                 chat_memory[:] = chat_memory[-MAX_MEMORY:]
 
-            response_text = ask_ai_with_memory(chat_memory)
+            response_text = ask_ai_with_memory(chat_memory, text_api_key)
             chat_memory.append({"role": "assistant", "content": response_text})
             if len(chat_memory) > MAX_MEMORY:
                 chat_memory[:] = chat_memory[-MAX_MEMORY:]
