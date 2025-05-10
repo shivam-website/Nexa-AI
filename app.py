@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
 # Hardcoded API key for Qwen3 (you can replace this with your actual key)
-text_api_key = "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"
+text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
@@ -25,7 +25,7 @@ def ask_ai_with_memory(memory_messages, text_api_key):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "qwen/qwen3-30b-a3b:free",  # Updated model for Qwen3-30b-a3b
+                "model": "google/gemini-2.5-pro-preview",  # Updated model for Qwen3-30b-a3b
                 "messages": memory_messages,
                 "temperature": 0.7
             },
