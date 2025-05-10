@@ -1,209 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aivora AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-            background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aivora AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        h1 {
-            font-size: 2.5em;
-            color: #0ff;
-            text-shadow: 0 0 15px #0ff;
-            margin: 30px 0 20px;
-        }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 15px 25px;
+      background-color: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 4px rgba(0, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      animation: slideIn 0.5s ease-in-out;
+    }
 
-        #chatbox {
-            width: 90%;
-            max-width: 600px;
-            height: 55vh;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid #0ff;
-            border-radius: 20px;
-            overflow-y: auto;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-            margin-bottom: 20px;
-            backdrop-filter: blur(6px);
-        }
+    h1 {
+      font-size: 2.5em;
+      color: #0ff;
+      text-shadow: 0 0 15px #0ff;
+      margin: 30px 0 20px;
+      opacity: 0;
+      animation: fadeIn 1s ease-in-out forwards;
+    }
 
-        .chat-container {
-            max-height: 500px;
-            overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE 10+ */
-        }
+    #chatbox {
+      width: 90%;
+      max-width: 600px;
+      height: 55vh;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid #0ff;
+      border-radius: 20px;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      margin-bottom: 20px;
+      backdrop-filter: blur(6px);
+      animation: fadeInUp 1s ease-in-out forwards;
+    }
 
-        .chat-container::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
-        }
+    button {
+      padding: 12px 20px;
+      margin: 10px 10px 0 0;
+      border-radius: 30px;
+      border: none;
+      background-color: #0ff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
 
-        /* Custom style for textarea to mimic chat input box */
-        textarea {
-            width: 70%;
-            padding: 12px 20px;
-            border-radius: 30px;
-            border: 1px solid #0ff;
-            outline: none;
-            background-color: #222;
-            color: #fff;
-            transition: 0.3s;
-            resize: none;
-            min-height: 50px;
-            max-height: 150px;
-            line-height: 1.5em;
-            font-size: 1.1em;
-            white-space: pre-wrap; /* Ensures wrapping of text */
-            overflow-wrap: break-word; /* Ensures long words break correctly */
-        }
+    button:hover {
+      background-color: #00cccc;
+      transform: scale(1.1);
+    }
 
-        textarea:focus {
-            box-shadow: 0 0 10px #0ff;
-        }
+    .user-message, .bot-message {
+      margin-bottom: 15px;
+      padding: 12px 18px;
+      border-radius: 18px;
+      max-width: 80%;
+      line-height: 1.5em;
+      opacity: 0;
+      animation: fadeInMessage 1s ease-in-out forwards;
+    }
 
-        button {
-            padding: 12px 20px;
-            margin: 10px 10px 0 0;
-            border-radius: 30px;
-            border: none;
-            background-color: #0ff;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+    .user-message {
+      background-color: #333;
+      color: #0ff;
+      margin-left: auto;
+    }
 
-        button:hover {
-            background-color: #00cccc;
-        }
+    .bot-message {
+      background-color: transparent;
+      color: #ff0;
+      margin-right: auto;
+    }
 
-        /* User Message Style */
-        .user-message {
-            margin-bottom: 15px;
-            padding: 12px 18px;
-            border-radius: 18px;
-            background-color: #333;
-            color: #0ff;
-            margin-left: auto;
-            max-width: 80%;
-            line-height: 1.5em;
-            animation: fadeIn 0.3s ease-in-out;
-        }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
 
-        /* Bot Message Style */
-        .bot-message {
-            margin-bottom: 15px;
-            padding: 12px 18px;
-            border-radius: 18px;
-            background-color: transparent; /* Make background transparent */
-            color: #ff0;
-            margin-right: auto;
-            max-width: 80%;
-            line-height: 1.5em;
-            animation: fadeIn 0.3s ease-in-out;
-        }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    @keyframes slideIn {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes fadeInMessage {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      margin-top: 10px;
+      width: 90%;
+      max-width: 550px;
+      border-radius: 30px;
+      border: none;
+      background: #333;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    input[type="text"]:focus {
+      box-shadow: 0 0 10px #0ff;
+    }
+
+    .logout-btn {
+      padding: 12px 20px;
+      margin-left: 10px;
+      border-radius: 30px;
+      border: none;
+      background-color: #ff0000;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #cc0000;
+      transform: scale(1.1);
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+      color: white;
+    }
+
+    #loader {
+      display: none;
+      color: #0ff;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <h1>Aivora AI Assistant</h1>
-    <div id="chatbox" class="chat-container"></div>
-    <textarea id="query" placeholder="Ask a question..." oninput="autoResize(this)" onkeypress="handleKeyPress(event)"></textarea>
-    <div>
-        <button id="ask-button">Send</button>
-        <button id="voice-button" onclick="startListening()">🎤 Speak</button>
-    </div>
 
-    <script>
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';  // Reset the height
-            textarea.style.height = (textarea.scrollHeight) + 'px';  // Adjust the height
-        }
+  <div class="top-bar" id="topBar"></div>
+  <h1>Welcome to Aivora AI Assistant</h1>
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                document.getElementById("ask-button").click();
-            }
-        }
+  <div id="chatbox"></div>
 
-        document.getElementById("ask-button").addEventListener("click", function (e) {
-            e.preventDefault();
-            const query = document.getElementById("query").value.trim();
-            if (!query) {
-                addMessageToChat("Please enter a query.", "bot-message");
-                return;
-            }
-            addMessageToChat(query, "user-message");
-            document.getElementById("query").value = "";  // Clear input after submission
+  <form id="query-form" method="POST">
+    <input type="text" name="instruction" placeholder="Ask me anything..." required />
+    <button type="submit">Send</button>
+  </form>
 
-            fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ 'instruction': query })
-            })
-            .then(response => response.json())
-            .then(data => {
-                addMessageToChat(data.response, "bot-message");
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                addMessageToChat("Sorry, there was an error processing your request.", "bot-message");
-            });
+  <!-- OCR Upload -->
+  <form id="ocr-form" method="POST" enctype="multipart/form-data" action="/upload_image">
+    <input type="file" name="image" accept="image/*" required />
+    <button type="submit">Upload Image</button>
+  </form>
+
+  <div id="loader">Uploading Image...</div>
+
+  <script>
+    const isLoggedIn = document.cookie.includes("session=");
+    const topBar = document.getElementById('topBar');
+
+    topBar.innerHTML = isLoggedIn
+      ? `<span style="margin-right: 10px;">Welcome, User</span><button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>`
+      : `<button class="logout-btn" onclick="window.location.href='/login/google'">Login</button>`;
+
+    const chatbox = document.getElementById('chatbox');
+
+    function addMessage(text, type = 'bot') {
+      const msg = document.createElement('div');
+      msg.className = type === 'user' ? 'user-message' : 'bot-message';
+      msg.textContent = text;
+      chatbox.appendChild(msg);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    document.getElementById('query-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const input = this.querySelector('input[name="instruction"]');
+      const query = input.value.trim();
+      if (!query) return;
+
+      addMessage(query, 'user');
+      input.value = '';
+
+      try {
+        const res = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ instruction: query })
         });
+        const data = await res.json();
+        addMessage(data.response);
+      } catch (err) {
+        addMessage("Error connecting to AI.");
+      }
+    });
 
-        function addMessageToChat(message, className) {
-            const chatbox = document.getElementById("chatbox");
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add(className);
+    document.getElementById('ocr-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const fileInput = this.querySelector('input[type="file"]');
+      const file = fileInput.files[0];
+      if (!file) return;
 
-            // If the message contains HTML (long responses), render as HTML
-            if (message.includes("<h2>") || message.includes("<p>")) {
-                messageDiv.innerHTML = message;
-            } else {
-                // For short answers, just use text
-                messageDiv.innerText = message;
-            }
+      const formData = new FormData();
+      formData.append('image', file);
 
-            chatbox.appendChild(messageDiv);
-            chatbox.scrollTop = chatbox.scrollHeight;  // Scroll to the bottom of the chat
-        }
+      // Show loader when uploading
+      document.getElementById('loader').style.display = 'block';
 
-        let recognition;
-        function startListening() {
-            if ('webkitSpeechRecognition' in window) {
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
+      addMessage("Uploading image...", 'user');
 
-                recognition.start();
-
-                recognition.onresult = function (event) {
-                    let transcript = event.results[0][0].transcript;
-                    document.getElementById("query").value = transcript;
-                    autoResize(document.getElementById("query"));  // Adjust height after speech input
-                };
-            } else {
-                alert('Speech recognition not supported in this browser.');
-            }
-        }
-    </script>
+      try {
+        const res = await fetch('/upload_image', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        addMessage("OCR Result: " + data.text);
+      } catch (err) {
+        addMessage("Error uploading image.");
+      } finally {
+        // Hide loader after upload
+        document.getElementById('loader').style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
