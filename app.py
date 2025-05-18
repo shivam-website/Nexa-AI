@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS so frontend can talk to backend from other domains
 
 # Hardcoded API key for Qwen3 (replacing with your new key)
-text_api_key = "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"
+text_api_key = "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"
 
 # In-memory chat history
 chat_memory = []
