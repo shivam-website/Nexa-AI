@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, redirect, session, url_for
 from flask_dance.contrib.google import make_google_blueprint, google
 from authlib.integrations.flask_client import OAuth
@@ -6,12 +5,18 @@ from PIL import Image
 import pytesseract
 import os
 import json
-import requests
+import google.generativeai as genai
 
 app = Flask(__name__)
 app.secret_key = "your_fallback_secret"
 
-HUGGINGFACE_API_KEY = os.getenv()
+# ========== API KEYS ==========
+GEMINI_API_KEY = "AIzaSyDQJcS5wwBi65AdfW5zHT2ayu1ShWgWcJg"
+HUGGINGFACE_API_KEY =os.getenv
+
+# ========== Gemini Init ==========
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")  # Or gemini-pro
 
 # ========== GOOGLE OAUTH ==========
 google_bp = make_google_blueprint(
@@ -48,37 +53,14 @@ def save_users(users):
     with open("users.json", "w") as f:
         json.dump(users, f, indent=4)
 
-# ========== AI CHAT (OpenRouter + Mistral) ==========
-
-load_dotenv()  # take environment variables from .env.
-
-api_key = os.getenv('TEXT_API_KEY')
+# ========== AI CHAT (Gemini SDK) ==========
 def ask_ai_with_memory(memory_messages):
     try:
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "mistral/ministral-8b",  # Fixed typo in model name
-                "messages": memory_messages,
-                "temperature": 0.7
-            },
-            timeout=30
-        )
-        response.raise_for_status()
-        data = response.json()
-        # Debug log for AI response
-        app.logger.debug(f"AI response data: {data}")
-        if "choices" in data and len(data["choices"]) > 0:
-            return data["choices"][0]["message"]["content"].strip()
-        return "⚠️ No response from AI. Please try again."
-    except requests.exceptions.RequestException as e:
-        return f"⚠️ API Error: {str(e)}"
+        full_prompt = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in memory_messages])
+        response = model.generate_content(full_prompt)
+        return response.text.strip()
     except Exception as e:
-        return f"⚠️ Unexpected error: {str(e)}"
+        return f"⚠️ Gemini SDK error: {str(e)}"
 
 # ========== ROUTES ==========
 
@@ -94,7 +76,6 @@ def handle_query():
     if not instruction:
         return jsonify({"response": "Please provide a valid input"})
 
-    # Append user message
     chat_memory.append({"role": "user", "content": instruction})
     if len(chat_memory) > MAX_MEMORY:
         chat_memory[:] = chat_memory[-MAX_MEMORY:]
@@ -122,7 +103,6 @@ def upload_image():
         if not text.strip():
             return jsonify({"response": "No text found in the image."})
 
-        # Add extracted text to chat memory and get AI response
         chat_memory.append({"role": "user", "content": text})
         if len(chat_memory) > MAX_MEMORY:
             chat_memory[:] = chat_memory[-MAX_MEMORY:]
@@ -155,17 +135,16 @@ def login():
             return redirect(url_for('index'))
     elif 'microsoft_token' in session:
         return redirect(url_for('index'))
-    return render_template('index.html')  # Login page
+    return render_template('index.html')
 
 @app.route('/start_new_chat', methods=['POST'])
 def start_new_chat():
     global chat_memory
-    chat_memory = []  # Clear chat memory
+    chat_memory = []
     return jsonify({"response": "New chat started. How can I assist you today?"})
 
 @app.route('/google-login')
 def google_login():
-    # Trigger Google OAuth flow
     return google.authorize(callback=url_for('google_login_authorized', _external=True))
 
 @app.route('/microsoft_login')
@@ -186,7 +165,5 @@ def logout():
     return redirect(url_for('login'))
 
 # ========== MAIN ==========
-
 if __name__ == "__main__":
-    # Use debug=True only for development, consider removing it in production
     app.run(debug=True)
