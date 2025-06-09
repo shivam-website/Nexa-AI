@@ -380,6 +380,13 @@ pre {
   background: #1e1e1e;
   color: #fff;
   padding: 10px;
+  border-radius: 6px;
   overflow-x: auto;
-  border-radius: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
 }
