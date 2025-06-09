@@ -85,15 +85,14 @@ function addMessage(text, type = 'bot') {
   const msg = document.createElement('div');
   msg.className = `chat-message ${type}-message`;
 
-  // Format code blocks
-  const formattedText = text
-    .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-      const safeCode = code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      return `<pre><code class="language-${lang || 'plaintext'}">${safeCode}</code></pre>`;
-    })
-    .replace(/\n/g, '<br>'); // Optional: support single line breaks
+  // Format the message (convert code blocks, newlines, etc.)
+  const formatted = text
+    .replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>')  // code blocks
+    .replace(/\n/g, '<br>')  // line breaks
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold
+    .replace(/\*(.*?)\*/g, '<em>$1</em>'); // italic
 
-  msg.innerHTML = formattedText;
+  msg.innerHTML = formatted;
   chatbox.appendChild(msg);
   chatbox.scrollTop = chatbox.scrollHeight;
 
@@ -109,6 +108,7 @@ function addMessage(text, type = 'bot') {
   localStorage.setItem("chat_" + currentChatId, JSON.stringify(chat));
   updateChatHistory();
 }
+
 
 
 function toggleDarkMode() {
