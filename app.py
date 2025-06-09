@@ -10,15 +10,13 @@ import google.generativeai as genai
 app = Flask(__name__)
 app.secret_key = "your_fallback_secret"
 
-# ========== API KEYS ==========
+# API KEYS
 GEMINI_API_KEY = "AIzaSyDQJcS5wwBi65AdfW5zHT2ayu1ShWgWcJg"
-HUGGINGFACE_API_KEY =os.getenv
+HUGGINGFACE_API_KEY = 
 
-# ========== Gemini Init ==========
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")  # Or gemini-pro
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-# ========== GOOGLE OAUTH ==========
 google_bp = make_google_blueprint(
     client_id="978102306464-qdjll3uos10m1nd5gcnr9iql9688db58.apps.googleusercontent.com",
     client_secret="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",
@@ -26,7 +24,6 @@ google_bp = make_google_blueprint(
 )
 app.register_blueprint(google_bp, url_prefix="/google_login")
 
-# ========== MICROSOFT OAUTH ==========
 oauth = OAuth(app)
 microsoft = oauth.register(
     name='microsoft',
@@ -38,11 +35,9 @@ microsoft = oauth.register(
     client_kwargs={'scope': 'User.Read'}
 )
 
-# ========== CHAT MEMORY ==========
 chat_memory = []
 MAX_MEMORY = 100
 
-# ========== USER DATABASE ==========
 def load_users():
     if os.path.exists("users.json"):
         with open("users.json") as f:
@@ -53,7 +48,6 @@ def save_users(users):
     with open("users.json", "w") as f:
         json.dump(users, f, indent=4)
 
-# ========== AI CHAT (Gemini SDK) ==========
 def ask_ai_with_memory(memory_messages):
     try:
         full_prompt = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in memory_messages])
@@ -61,8 +55,6 @@ def ask_ai_with_memory(memory_messages):
         return response.text.strip()
     except Exception as e:
         return f"⚠️ Gemini SDK error: {str(e)}"
-
-# ========== ROUTES ==========
 
 @app.route('/')
 def index():
@@ -82,16 +74,14 @@ def handle_query():
 
     ai_response = ask_ai_with_memory(chat_memory)
     chat_memory.append({"role": "assistant", "content": ai_response})
-
     return jsonify({"response": ai_response})
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
-    if 'image' not in request.files:
-        return jsonify({"response": "No image uploaded"})
+    if 'image' not in request.files or request.files['image'].filename == '':
+        return jsonify({"response": "No image uploaded or selected"})
+
     image = request.files['image']
-    if image.filename == '':
-        return jsonify({"response": "No image selected"})
     try:
         os.makedirs("uploads", exist_ok=True)
         image_path = os.path.join("uploads", image.filename)
@@ -106,15 +96,13 @@ def upload_image():
         chat_memory.append({"role": "user", "content": text})
         if len(chat_memory) > MAX_MEMORY:
             chat_memory[:] = chat_memory[-MAX_MEMORY:]
+
         ai_response = ask_ai_with_memory(chat_memory)
         chat_memory.append({"role": "assistant", "content": ai_response})
 
         return jsonify({"response": ai_response})
-
     except Exception as e:
         return jsonify({"response": f"Error processing image: {str(e)}"})
-
-# ========== AUTH ROUTES ==========
 
 @app.route('/google_login/authorized')
 def google_login_authorized():
@@ -165,6 +153,4 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(debug=True)
