@@ -50,7 +50,13 @@ def save_users(users):
 
 def ask_ai_with_memory(memory_messages):
     try:
-        full_prompt = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in memory_messages])
+        system_instruction = (
+            "You are a helpful, clear, and concise assistant. "
+            "Answer naturally like a friendly expert. "
+            "If asked for code, reply with only the relevant code and minimal comments. "
+            "If asked a question, keep answers short and direct without long explanations."
+        )
+        full_prompt = system_instruction + "\n" + "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in memory_messages])
         response = model.generate_content(full_prompt)
         return response.text.strip()
     except Exception as e:
