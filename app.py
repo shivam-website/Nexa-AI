@@ -12,7 +12,7 @@ app.secret_key = "your_fallback_secret"
 
 # API KEYS
 GEMINI_API_KEY = "AIzaSyDQJcS5wwBi65AdfW5zHT2ayu1ShWgWcJg"
-HUGGINGFACE_API_KEY = 
+HUGGINGFACE_API_KEY = os.getenv
 
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
