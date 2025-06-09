@@ -376,3 +376,10 @@
   .dark-mode .input-area button:hover {
     background-color: #1e40af !important;
   }
+pre {
+  background: #1e1e1e;
+  color: #fff;
+  padding: 10px;
+  overflow-x: auto;
+  border-radius: 8px;
+}
