@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secure Login Portal</title>
+
+  <!-- Google API with proper initialization -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Microsoft MSAL -->
+  <script src="https://alcdn.msauth.net/browser/2.24.0/js/msal-browser.min.js"></script>
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+      --google-red: #db4437;
+      --google-red-hover: #c23321;
+      --microsoft-blue: #0078d4;
+      --microsoft-blue-hover: #005a9e;
+      --white: #ffffff;
+      --white-20: rgba(255, 255, 255, 0.2);
+      --white-10: rgba(255, 255, 255, 0.1);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+    }
+
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: var(--primary-gradient);
+    }
+
+    .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--white-10);
+      border-radius: 20px;
+      padding: 40px 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .login-box h2 {
+      color: var(--white);
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--white);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-btn {
+      background-color: var(--white-20);
+      border: 1px solid var(--white);
+    }
+
+    .google-btn {
+      background-color: var(--google-red);
+    }
+
+    .google-btn:hover {
+      background-color: var(--google-red-hover);
+    }
+
+    .microsoft-btn {
+      background-color: var(--microsoft-blue);
+    }
+
+    .microsoft-btn:hover {
+      background-color: var(--microsoft-blue-hover);
+    }
+
+    #login-options {
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 20px;
+      color: var(--white);
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid var(--white);
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .login-box {
+        padding: 30px 20px;
+      }
+      
+      .login-box h2 {
+        font-size: 1.5rem;
+      }
+      
+      .btn {
+        padding: 10px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle Background -->
+  <div id="particles-js"></div>
+
+  <div class="container">
+    <div class="login-box">
+      <h2>Welcome Back</h2>
+      <button class="btn main-btn" onclick="showLoginOptions()">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+
+      <div id="login-options">
+        <button class="btn google-btn" onclick="handleGoogleLogin()">
+          <i class="fab fa-google"></i> Continue with Google
+        </button>
+        <button class="btn microsoft-btn" onclick="handleMicrosoftLogin()">
+          <i class="fab fa-microsoft"></i> Continue with Microsoft
+        </button>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Signing you in...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Google Auth Implementation
+    function handleGoogleLogin() {
+      showLoading(true);
+      
+      try {
+        // Initialize Google client
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: '978102306464-qdjll3uos10m1nd5gcnr9iql9688db58.apps.googleusercontent.com',
+          scope: 'profile email',
+          callback: (response) => {
+            if (response.error) {
+              console.error('Google login error:', response.error);
+              alert('Google login failed: ' + response.error);
+              showLoading(false);
+              return;
+            }
+            
+            // Verify the token with your backend in a real application
+            console.log('Google auth successful', response);
+            alert('Google login successful!');
+            showLoading(false);
+            
+            // In a real app, you would send the token to your backend
+            // fetch('/api/google-auth', {
+            //   method: 'POST',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify({ token: response.access_token })
+            // });
+          }
+        });
+        
+        // Request access token
+        client.requestAccessToken();
+      } catch (error) {
+        console.error('Google auth initialization error:', error);
+        alert('Failed to initialize Google login');
+        showLoading(false);
+      }
+    }
+
+    // Microsoft Auth Implementation
+    const msalConfig = {
+      auth: {
+        clientId: 'YOUR_MICROSOFT_CLIENT_ID', // Replace with your actual client ID
+        authority: 'https://login.microsoftonline.com/common',
+        redirectUri: window.location.origin
+      }
+    };
+
+    const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+    async function handleMicrosoftLogin() {
+      showLoading(true);
+      
+      try {
+        const loginRequest = {
+          scopes: ['user.read'],
+          prompt: 'select_account'
+        };
+        
+        const authResult = await msalInstance.loginPopup(loginRequest);
+        console.log('Microsoft auth successful', authResult);
+        alert('Microsoft login successful!');
+        
+        // In a real app, you would use the token to get user info
+        // const user = await getUserProfile(authResult.accessToken);
+        
+        showLoading(false);
+      } catch (error) {
+        console.error('Microsoft login error:', error);
+        alert('Microsoft login failed: ' + error.message);
+        showLoading(false);
+      }
+    }
+
+    // Helper functions
+    function showLoginOptions() {
+      document.getElementById("login-options").style.display = "block";
+    }
+
+    function showLoading(show) {
+      document.getElementById("loading").style.display = show ? "block" : "none";
+    }
+
+    // Initialize particles.js
+    document.addEventListener('DOMContentLoaded', function() {
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#ffffff" },
+          shape: { type: "circle" },
+          opacity: { value: 0.5, random: true },
+          size: { value: 3, random: true },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#ffffff",
+            opacity: 0.4,
+            width: 1
+          },
+          move: {
+            enable: true,
+            speed: 2,
+            direction: "none",
+            random: true,
+            straight: false,
+            out_mode: "out"
+          }
+        },
+        interactivity: {
+          detect_on: "window",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" }
+          },
+          modes: {
+            repulse: { distance: 100, duration: 0.4 },
+            push: { particles_nb: 4 }
+          }
+        },
+        retina_detect: true
+      });
+    });
+  </script>
+
+</body>
+</html>
