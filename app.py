@@ -8,19 +8,19 @@ import json
 import google.generativeai as genai
 
 app = Flask(__name__)
-app.secret_key = "your_fallback_secret_key_here"
+app.secret_key = "your_fallback_secret"
 
-# API Configuration
+# API KEYS
 GEMINI_API_KEY = "AIzaSyDQJcS5wwBi65AdfW5zHT2ayu1ShWgWcJg"
+HUGGINGFACE_API_KEY = os.getenv
+
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-# OAuth Setup
 google_bp = make_google_blueprint(
     client_id="978102306464-qdjll3uos10m1nd5gcnr9iql9688db58.apps.googleusercontent.com",
     client_secret="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",
-    redirect_url="/google_login/authorized",
-    scope=["profile", "email"]
+    redirect_url="/google_login/authorized"
 )
 app.register_blueprint(google_bp, url_prefix="/google_login")
 
@@ -35,10 +35,8 @@ microsoft = oauth.register(
     client_kwargs={'scope': 'User.Read'}
 )
 
-# Chat Memory Management
 chat_memory = []
 MAX_MEMORY = 100
-MIN_RESPONSE_LENGTH = 150  # Minimum words for a satisfactory response
 
 def load_users():
     if os.path.exists("users.json"):
@@ -52,66 +50,26 @@ def save_users(users):
 
 def ask_ai_with_memory(memory_messages):
     try:
-        # Enhanced system instruction for detailed responses
         system_instruction = (
-            "You are Aivora AI, a highly knowledgeable and articulate assistant. "
-            "Provide comprehensive, detailed responses that thoroughly address the user's needs. "
-            "Structure your answers with clear organization: "
-            "1. Start with a concise direct answer "
-            "2. Provide detailed explanations "
-            "3. Include relevant examples or analogies "
-            "4. Offer additional context when helpful "
-            "For technical questions, provide complete code examples with explanations. "
-            "For subjective questions, present multiple perspectives. "
-            "Use markdown formatting for better readability (``` for code, **bold** for emphasis)."
+            "You are Aivora, a smart and friendly AI assistant. "
+            "You respond like a helpful expert — clear, friendly, and with enough depth to be useful. "
+            "Give full answers, not just short replies. "
+            "Explain code when needed. If the user asks for 'only code', provide only the code. "
+            "Sound like a real human who cares about helping."
         )
-        
-        # Format conversation history effectively
-        conversation_history = "\n".join([
-            f"{m['role'].capitalize()}: {m['content']}" 
-            for m in memory_messages[-6:]  # Keep recent context
-        ])
-        
-        # Configure for longer, high-quality responses
-        generation_config = genai.types.GenerationConfig(
-            max_output_tokens=4000,
-            temperature=0.7,
-            top_p=0.9,
-            top_k=40
+        full_prompt = system_instruction + "\n" + "\n".join(
+            [f"{m['role'].capitalize()}: {m['content']}" for m in memory_messages]
         )
-        
-        response = model.generate_content(
-            system_instruction + "\n\nCurrent conversation:\n" + conversation_history,
-            generation_config=generation_config
-        )
-        
+        response = model.generate_content(full_prompt)
         return response.text.strip()
     except Exception as e:
-        return f"⚠️ Error generating response: {str(e)}"
-
-def ensure_response_quality(response, memory_messages):
-    """Ensure responses meet minimum quality standards"""
-    if len(response.split()) < MIN_RESPONSE_LENGTH and not any(
-        kw in response.lower() for kw in ['code', 'error', 'sorry']
-    ):
-        follow_up = (
-            "Please expand your previous answer with: "
-            "1. More detailed explanations "
-            "2. Practical examples "
-            "3. Relevant context "
-            "4. Any helpful analogies"
-        )
-        enhanced_response = ask_ai_with_memory(
-            memory_messages + [{"role": "user", "content": follow_up}]
-        )
-        return enhanced_response
-    return response
+        return f"⚠️ Gemini SDK error: {str(e)}"
 
 @app.route('/')
 def index():
     if 'user' not in session:
         return redirect(url_for('login'))
-    return render_template('index.html', chat_memory=chat_memory)
+    return render_template('index.html')
 
 @app.route('/ask', methods=['POST'])
 def handle_query():
@@ -121,26 +79,11 @@ def handle_query():
 
     chat_memory.append({"role": "user", "content": instruction})
     if len(chat_memory) > MAX_MEMORY:
-        # Smart memory management - summarize older messages
-        summary_prompt = (
-            "Summarize this conversation history preserving key technical details, "
-            "user preferences, and important context in 3-4 concise paragraphs:"
-        )
-        old_messages = "\n".join([m['content'] for m in chat_memory[:-50]])
-        chat_memory[:] = [
-            {"role": "assistant", "content": ask_ai_with_memory([
-                {"role": "user", "content": f"{summary_prompt}\n{old_messages}"}
-            ])}
-        ] + chat_memory[-50:]
+        chat_memory[:] = chat_memory[-MAX_MEMORY:]
 
     ai_response = ask_ai_with_memory(chat_memory)
-    ai_response = ensure_response_quality(ai_response, chat_memory)
     chat_memory.append({"role": "assistant", "content": ai_response})
-    
-    return jsonify({
-        "response": ai_response,
-        "memory_length": len(chat_memory)
-    })
+    return jsonify({"response": ai_response})
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
@@ -159,9 +102,11 @@ def upload_image():
         if not text.strip():
             return jsonify({"response": "No text found in the image."})
 
-        chat_memory.append({"role": "user", "content": f"Extracted text from image:\n{text}"})
+        chat_memory.append({"role": "user", "content": text})
+        if len(chat_memory) > MAX_MEMORY:
+            chat_memory[:] = chat_memory[-MAX_MEMORY:]
+
         ai_response = ask_ai_with_memory(chat_memory)
-        ai_response = ensure_response_quality(ai_response, chat_memory)
         chat_memory.append({"role": "assistant", "content": ai_response})
 
         return jsonify({"response": ai_response})
@@ -174,7 +119,7 @@ def google_login_authorized():
         return redirect(url_for("login"))
     user_info = google.get("/oauth2/v2/userinfo")
     if user_info.ok:
-        session['user'] = user_info.json()
+        session['user'] = user_info.json().get("email")
         return redirect(url_for('index'))
     return redirect(url_for('login'))
 
@@ -183,7 +128,7 @@ def login():
     if google.authorized:
         user_info = google.get('/oauth2/v2/userinfo')
         if user_info.ok:
-            session['user'] = user_info.json()
+            session['user'] = user_info.json().get('email')
             return redirect(url_for('index'))
     elif 'microsoft_token' in session:
         return redirect(url_for('index'))
@@ -192,15 +137,7 @@ def login():
 @app.route('/start_new_chat', methods=['POST'])
 def start_new_chat():
     global chat_memory
-    # Save important context before clearing
-    if len(chat_memory) > 3:
-        summary = ask_ai_with_memory([{
-            "role": "user", 
-            "content": "Summarize key user preferences and context from this conversation in one paragraph"
-        }])
-        chat_memory = [{"role": "assistant", "content": summary}]
-    else:
-        chat_memory = []
+    chat_memory = []
     return jsonify({"response": "New chat started. How can I assist you today?"})
 
 @app.route('/google-login')
@@ -216,13 +153,13 @@ def microsoft_login():
 def microsoft_authorize():
     token = microsoft.authorize_access_token()
     user = microsoft.get('me').json()
-    session['user'] = user
+    session['user'] = user.get('userPrincipalName')
     return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
-    session.clear()
+    session.pop('user', None)
     return redirect(url_for('login'))
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)
