@@ -1,322 +1,411 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Aivora AI Assistant</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aivora AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 
 </head>
 <body>
-  
-<!-- Sidebar Toggle Button (Shown when sidebar is hidden) -->
-<button id="showSidebarBtn" class="sidebar-show-btn" style="display: none;">☰</button>
-
-  
+  <!-- Sidebar -->
   <div id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-logo">Aivora</span>
-      <button id="hideSidebarBtn" class="sidebar-toggle">×</button>
+      <span class="sidebar-logo"><i class="fas fa-robot"></i> Aivora</span>
+      <button id="hideSidebarBtn" class="sidebar-toggle"><i class="fas fa-times"></i></button>
     </div>
-  
-    <a onclick="startNewChat()">+ New Chat</a>
+
+    <button class="new-chat-btn" onclick="startNewChat()">
+      <i class="fas fa-plus"></i> New Chat
+    </button>
+
     <div id="chat-history-list"></div>
-  
-    <button id="clear-chats" class="sidebar-btn" onclick="clearAllChats()">Clear All Chats</button>
-    <a href="/logout" class="sidebar-btn" style="color: #ff4d4d;">Logout</a>
-  </div>
-  
-<!-- ✅ Wrap these in .main to restore layout -->
-<div class="main">
-  <div class="top-bar" id="topBar">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-      <div style="margin-left: 40px; font-weight: bold;">Aivora AI Assistant</div>
-      <button onclick="toggleDarkMode()" style="background:#1abc9c; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:14px;">🌙</button>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-btn" onclick="toggleDarkMode()">
+        <i class="fas fa-moon"></i> Dark Mode
+      </button>
+      <button class="sidebar-btn" onclick="clearAllChats()">
+        <i class="fas fa-trash"></i> Clear All Chats
+      </button>
+      <a href="/logout" class="sidebar-btn" style="color: #ff6b6b;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
     </div>
   </div>
-  
-  
-<div class="chat-container" id="chatbox"></div>
 
-<div class="input-area">
-<form id="multi-action-form" style="display: flex; width: 100%; gap: 10px;" enctype="multipart/form-data">
-  <select id="action-type">
-    <option value="ask">Ask AI</option>
-    <option value="upload_image">Upload Image</option>
-    <option value="generate_image">Generate Image</option>
-  </select>
+  <!-- Sidebar Toggle Button (Mobile) -->
+  <button id="showSidebarBtn" class="sidebar-show-btn" style="display: none;">
+    <i class="fas fa-bars"></i>
+  </button>
 
-  <input type="text" id="text-input" name="instruction" placeholder="Type something..." required />
-  <input type="file" id="file-input" name="image" accept="image/*" style="display: none;" />
-  <button type="submit">Submit</button>
-</form>
-</div>
+  <!-- Main Content -->
+  <div class="main">
+    <div class="top-bar">
+      <div class="top-bar-title">Aivora AI Assistant</div>
+      <div class="top-bar-actions">
+        <button class="action-btn" onclick="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
 
-<div id="loader" class="image-box" style="display:none;">Loading...</div>
-<div class="image-box" id="generated-image-container"></div>
-</div>
+    <div class="chat-container" id="chatbox"></div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-// ✅ Apply dark mode if it was enabled last time
-if (localStorage.getItem('darkMode') === 'enabled') {
-document.body.classList.add('dark-mode');
-}
-const loginBtn = document.getElementById('login-btn');
-let currentChatId = null;
-let chatTitle = '';
-const chatbox = document.getElementById('chatbox');
-const chatHistoryList = document.getElementById('chat-history-list');
+    <div class="input-area">
+      <form id="multi-action-form" enctype="multipart/form-data">
+        <select id="action-type">
+          <option value="ask">Ask AI</option>
+          <option value="upload_image">Upload Image</option>
+        </select>
 
+        <input type="text" id="text-input" name="instruction" placeholder="Ask Aivora anything..." required />
+        
+        <label for="file-input" class="file-input-label" id="file-input-label" style="display: none;">
+          <i class="fas fa-image"></i>
+        </label>
+        <input type="file" id="file-input" name="image" accept="image/*" />
 
-const textInput = document.getElementById('text-input');
-const fileInput = document.getElementById('file-input');
-const actionType = document.getElementById('action-type');
-const loader = document.getElementById('loader');
-const imageContainer = document.getElementById('generated-image-container');
+        <button type="submit" class="submit-btn">
+          <i class="fas fa-paper-plane"></i> Send
+        </button>
+      </form>
+    </div>
 
-function addMessage(text, type = 'bot') {
-  const msg = document.createElement('div');
-  msg.className = `chat-message ${type}-message`;
+    <div class="loader" id="loader">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+  </div>
 
-  // Format the message (convert code blocks, newlines, etc.)
-  const formatted = text
-    .replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>')  // code blocks
-    .replace(/\n/g, '<br>')  // line breaks
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold
-    .replace(/\*(.*?)\*/g, '<em>$1</em>'); // italic
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.0/marked.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize dark mode
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+      }
 
-  msg.innerHTML = formatted;
-  chatbox.appendChild(msg);
-  chatbox.scrollTop = chatbox.scrollHeight;
+      // DOM Elements
+      const chatbox = document.getElementById('chatbox');
+      const chatHistoryList = document.getElementById('chat-history-list');
+      const textInput = document.getElementById('text-input');
+      const fileInput = document.getElementById('file-input');
+      const fileInputLabel = document.getElementById('file-input-label');
+      const actionType = document.getElementById('action-type');
+      const loader = document.getElementById('loader');
+      const sidebar = document.getElementById('sidebar');
+      const showSidebarBtn = document.getElementById('showSidebarBtn');
+      const hideSidebarBtn = document.getElementById('hideSidebarBtn');
 
-  if (!currentChatId) {
-    const userQuery = textInput.value.trim();
-    chatTitle = userQuery || "Untitled Chat";
-    currentChatId = chatTitle;
-    localStorage.setItem("chat_" + currentChatId, JSON.stringify([]));
-  }
+      let currentChatId = null;
+      let chatTitle = '';
 
-  const chat = JSON.parse(localStorage.getItem("chat_" + currentChatId)) || [];
-  chat.push({ type, text });
-  localStorage.setItem("chat_" + currentChatId, JSON.stringify(chat));
-  updateChatHistory();
-}
+      // Initialize Highlight.js
+      hljs.highlightAll();
 
+      // Configure marked (Markdown parser)
+      marked.setOptions({
+        breaks: true,
+        highlight: function(code, lang) {
+          const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+          return hljs.highlight(code, { language }).value;
+        }
+      });
 
+      // Sidebar toggle functionality
+      showSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.add('visible');
+      });
 
-function toggleDarkMode() {
-const isDark = document.body.classList.toggle('dark-mode');
-localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-}
-async function startNewChat() {
-try {
-const response = await fetch('/start_new_chat', {
-method: 'POST',
-});
-const data = await response.json();
-if (data.response) {
-console.log(data.response);
-currentChatId = null;
-chatTitle = '';
-chatbox.innerHTML = '';
-textInput.value = '';
-fileInput.value = '';
-imageContainer.innerHTML = '';
-loader.style.display = 'none';
-actionType.value = 'ask';
-}
-} catch (error) {
-console.error("Error starting new chat:", error);
-}
+      hideSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.remove('visible');
+      });
 
+      // Toggle file input visibility based on action type
+      actionType.addEventListener('change', function () {
+        if (this.value === 'upload_image') {
+          fileInputLabel.style.display = 'flex';
+          textInput.placeholder = 'Add optional caption...';
+        } else {
+          fileInputLabel.style.display = 'none';
+          textInput.placeholder = 'Ask Aivora anything...';
+        }
+      });
 
-}
+      // Form submission handler
+      document.getElementById('multi-action-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const type = actionType.value;
+        loader.style.display = 'block';
 
+        if (type === 'ask') {
+          const userText = textInput.value.trim();
+          if (!userText) {
+            alert("Please enter your question");
+            loader.style.display = 'none';
+            return;
+          }
+          addMessage(userText, 'user');
+          const response = await askAI(userText);
+          addMessage(response, 'bot');
+        } 
+        else if (type === 'upload_image') {
+          if (fileInput.files.length === 0) {
+            alert("Please select an image to upload");
+            loader.style.display = 'none';
+            return;
+          }
+          addMessage('Uploading image...', 'user');
+          const response = await uploadImage(fileInput.files[0]);
+          addMessage(response, 'bot');
+        }
 
-function updateChatHistory() {
-const existingChats = new Set();
-chatHistoryList.innerHTML = '';
-Object.keys(localStorage).forEach(key => {
-if (key.startsWith("chat_")) {
-  const chatName = key.replace("chat_", "");
-  if (!existingChats.has(chatName)) {
-    const chatHistoryItem = document.createElement('div');
-    chatHistoryItem.className = 'chat-link';
-    chatHistoryItem.textContent = `Chat - ${chatName}`;
-    chatHistoryItem.onclick = () => loadChat(chatName);
-    chatHistoryList.appendChild(chatHistoryItem);
-    existingChats.add(chatName);
-  }
-}
-});
-}
+        textInput.value = '';
+        fileInput.value = '';
+        loader.style.display = 'none';
+        textInput.focus();
+      });
 
-function loadChat(key) {
-currentChatId = key;
-chatTitle = key;
-chatbox.innerHTML = '';
-const messages = JSON.parse(localStorage.getItem("chat_" + key));
-messages.forEach(msg => {
-addMessage(msg.text, msg.type);
-});
-}
+      // Enhanced addMessage function
+      function addMessage(text, type = 'bot') {
+        const msg = document.createElement('div');
+        msg.className = `chat-message ${type}-message`;
+        
+        // Create message header
+        const header = document.createElement('div');
+        header.className = 'message-header';
+        
+        if (type === 'user') {
+          header.innerHTML = '<i class="fas fa-user"></i> You';
+        } else {
+          header.innerHTML = '<i class="fas fa-robot"></i> Aivora';
+        }
+        
+        msg.appendChild(header);
+        
+        // Process message content (parse markdown and format sections)
+        const content = document.createElement('div');
+        content.className = 'message-content';
+        
+        // Parse structured response format
+        if (type === 'bot' && text.includes('**Concise Direct Answer:**')) {
+          const sections = text.split(/\d+\.\s+\*\*.*?\*\*:/g).slice(1);
+          const titles = text.match(/\d+\.\s+\*\*(.*?)\*\*:/g) || [];
+          
+          titles.forEach((title, index) => {
+            const cleanTitle = title.replace(/\d+\.\s+\*\*|\*\*:/g, '');
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'message-section';
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'section-title';
+            
+            // Add appropriate icon based on section
+            let icon = 'fa-info-circle';
+            if (cleanTitle.includes('Examples')) icon = 'fa-list-ul';
+            else if (cleanTitle.includes('Explanation')) icon = 'fa-lightbulb';
+            else if (cleanTitle.includes('Context')) icon = 'fa-book';
+            
+            titleDiv.innerHTML = `<i class="fas ${icon}"></i> ${cleanTitle}`;
+            sectionDiv.appendChild(titleDiv);
+            
+            // Process content with markdown
+            const contentDiv = document.createElement('div');
+            let sectionContent = sections[index]?.trim() || '';
+            
+            // Special handling for code blocks
+            if (cleanTitle.includes('Answer') && sectionContent.includes('```')) {
+              sectionContent = sectionContent.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<div class="code-block"><div class="code-header"><span class="code-language">${lang || 'python'}</span><button class="copy-btn" onclick="copyToClipboard(this)"><i class="far fa-copy"></i> Copy</button></div><pre><code class="${lang || 'python'}">${code.trim()}</code></pre></div>`;
+              });
+            }
+            
+            contentDiv.innerHTML = marked.parse(sectionContent);
+            sectionDiv.appendChild(contentDiv);
+            content.appendChild(sectionDiv);
+          });
+        } 
+        else {
+          // Regular message processing
+          content.innerHTML = marked.parse(text);
+        }
+        
+        msg.appendChild(content);
+        chatbox.appendChild(msg);
+        chatbox.scrollTop = chatbox.scrollHeight;
 
-// Function to toggle sidebar visibility
+        // Highlight any code blocks
+        document.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+        });
 
-function toggleSidebar() {
+        // Save to chat history
+        if (!currentChatId) {
+          const userQuery = textInput.value.trim();
+          chatTitle = userQuery.substring(0, 30) || "New Chat";
+          currentChatId = 'chat_' + Date.now();
+          localStorage.setItem(currentChatId, JSON.stringify([]));
+        }
 
+        const chat = JSON.parse(localStorage.getItem(currentChatId)) || [];
+        chat.push({ type, text });
+        localStorage.setItem(currentChatId, JSON.stringify(chat));
+        updateChatHistory();
+      }
 
-const sidebar = document.getElementById('sidebar');
-if (sidebar) {
-sidebar.classList.toggle('hidden'); // Use a class to hide/show
-} else {
-console.log("Sidebar not found!");
-}
-}
+      // Update chat history list
+      function updateChatHistory() {
+        chatHistoryList.innerHTML = '';
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('chat_')) {
+            const chatItem = document.createElement('div');
+            chatItem.className = 'chat-link';
+            if (key === currentChatId) chatItem.classList.add('active');
+            
+            // Try to get the first user message as title
+            let title = 'Chat';
+            try {
+              const messages = JSON.parse(localStorage.getItem(key));
+              const firstUserMsg = messages.find(m => m.type === 'user');
+              if (firstUserMsg) {
+                title = firstUserMsg.text.substring(0, 30);
+                if (firstUserMsg.text.length > 30) title += '...';
+              }
+            } catch (e) {
+              console.error('Error parsing chat history:', e);
+            }
+            
+            chatItem.innerHTML = `<i class="far fa-comment"></i> ${title}`;
+            chatItem.onclick = () => loadChat(key);
+            chatHistoryList.appendChild(chatItem);
+          }
+        });
+      }
 
+      // Load chat from history
+      function loadChat(key) {
+        currentChatId = key;
+        chatbox.innerHTML = '';
+        try {
+          const messages = JSON.parse(localStorage.getItem(key));
+          messages.forEach(msg => {
+            addMessage(msg.text, msg.type);
+          });
+          
+          // Update active state in sidebar
+          document.querySelectorAll('.chat-link').forEach(link => {
+            link.classList.remove('active');
+          });
+          document.querySelector(`.chat-link[onclick="loadChat('${key}')"]`).classList.add('active');
+        } catch (e) {
+          console.error('Error loading chat:', e);
+        }
+      }
 
-actionType.addEventListener('change', function () {
-if (actionType.value === 'upload_image') {
-fileInput.style.display = 'block';
-textInput.placeholder = 'You can add a caption...';
-} else {
-fileInput.style.display = 'none';
-textInput.placeholder = 'Type something...';
-}
-});
+      // Start new chat
+      async function startNewChat() {
+        try {
+          const response = await fetch('/start_new_chat', { method: 'POST' });
+          const data = await response.json();
+          if (data.response) {
+            currentChatId = null;
+            chatbox.innerHTML = '';
+            textInput.value = '';
+            fileInput.value = '';
+            updateChatHistory();
+          }
+        } catch (error) {
+          console.error("Error starting new chat:", error);
+        }
+      }
 
-document.getElementById('multi-action-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const type = actionType.value;
-  loader.style.display = 'block';
-  imageContainer.innerHTML = '';
+      // Clear all chats
+      window.clearAllChats = function() {
+        if (confirm('Are you sure you want to clear all chat history?')) {
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('chat_')) {
+              localStorage.removeItem(key);
+            }
+          });
+          chatbox.innerHTML = '';
+          chatHistoryList.innerHTML = '';
+          currentChatId = null;
+        }
+      };
 
-  if (type === 'ask') {
-    const userText = textInput.value.trim();
-    if (!userText) {
-      alert("Please type your question.");
-      loader.style.display = 'none';
-      return;
-    }
-    addMessage(userText, 'user');
-    const response = await askAI(userText);
-    addMessage(response, 'bot');
+      // Toggle dark mode
+      window.toggleDarkMode = function() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', 
+          document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+      };
 
-  } else if (type === 'upload_image') {
-    if (fileInput.files.length === 0) {
-      alert("Please select an image to upload.");
-      loader.style.display = 'none';
-      return;
-    }
-    addMessage('Uploading image...', 'user');
-    const response = await uploadImage(fileInput.files[0]);
-    addMessage(response, 'bot');
+      // API call functions
+      async function askAI(query) {
+        const formData = new FormData();
+        formData.append('instruction', query);
 
-  } else if (type === 'generate_image') {
-    const prompt = textInput.value.trim();
-    if (!prompt) {
-      alert("Please enter a prompt for image generation.");
-      loader.style.display = 'none';
-      return;
-    }
-    addMessage('Generating image...', 'user');
-    const imageUrl = await generateImage(prompt);
-    imageContainer.innerHTML = `<img src="${imageUrl}" alt="Generated Image" />`;
-  }
+        try {
+          const response = await fetch('/ask', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await response.json();
+          return data.response || "Sorry, I couldn't process your request.";
+        } catch (error) {
+          console.error("Error asking AI:", error);
+          return "There was an error contacting the AI service.";
+        }
+      }
 
-  textInput.value = '';
-  fileInput.value = '';
-  loader.style.display = 'none';
-});
+      async function uploadImage(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        if (textInput.value.trim()) {
+          formData.append('caption', textInput.value.trim());
+        }
 
-async function askAI(query) {
-  const formData = new FormData();
-  formData.append('instruction', query);
+        try {
+          const response = await fetch('/upload_image', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await response.json();
+          return data.response || "Image processed successfully";
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          return "There was an error processing your image.";
+        }
+      }
 
-  try {
-    const response = await fetch('/ask', {
-      method: 'POST',
-      body: formData
+      // Copy to clipboard function
+      window.copyToClipboard = function(button) {
+        const codeBlock = button.closest('.code-block').querySelector('code');
+        navigator.clipboard.writeText(codeBlock.textContent)
+          .then(() => {
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+              button.innerHTML = '<i class="far fa-copy"></i> Copy';
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Failed to copy:', err);
+          });
+      };
+
+      // Initialize chat history
+      updateChatHistory();
+
+      // Focus input field on load
+      textInput.focus();
     });
-    const data = await response.json();
-    if (data.response) {
-      return data.response;
-    } else {
-      return "Sorry, I didn't get a response.";
-    }
-  } catch (error) {
-    console.error("Error asking AI:", error);
-    return "There was an error contacting the AI service.";
-  }
-}
-async function uploadImage(file) {
-return '✅ Image uploaded successfully!'; // Placeholder
-}
-
-async function generateImage(prompt) {
-return 'https://via.placeholder.com/300x200.png?text=Generated+Image'; // Placeholder
-}
-
-function login() {
-window.location.href = "/login";
-}
-function toggleLoginOptions() {
-
-
-const options = document.getElementById('login-options');
-options.style.display = options.style.display === 'none' ? 'block' : 'none';
-}
-
-
-window.clearAllChats = function () {
-if (confirm('Are you sure you want to clear all chats?')) {
-Object.keys(localStorage).forEach(key => {
-  if (key.startsWith("chat_")) {
-    localStorage.removeItem(key);
-  }
-});
-chatbox.innerHTML = '';
-chatHistoryList.innerHTML = '';
-}
-};
-
-window.toggleDarkMode = toggleDarkMode; // ✅ Expose it globally if needed for button onclick
-
-updateChatHistory();
-
-});
-
-
-</script>
-<script>
-document.getElementById('hideSidebarBtn').onclick = function () {
-  document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('showSidebarBtn').style.display = 'block';
-  document.querySelector('.main-content').style.marginLeft = '0';
-};
-
-document.getElementById('showSidebarBtn').onclick = function () {
-  document.getElementById('sidebar').style.display = 'flex';
-  document.getElementById('showSidebarBtn').style.display = 'none';
-  document.querySelector('.main-content').style.marginLeft = '250px';
-};
-
-</script>
-<script>
-  const toggleBtn = document.getElementById("toggleSidebarBtn");
-  const sidebar = document.querySelector(".sidebar");
-
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("hidden-sidebar");
-  });
-</script>
-
+  </script>
 </body>
 </html>
