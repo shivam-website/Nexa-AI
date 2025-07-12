@@ -3,53 +3,58 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Vexara AI Assistant</title>
+    <title>ChatGPT-like AI Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Söhne:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">    
     <style>
-        /* CSS Variables for ChatGPT-like theming */
+        /* ChatGPT-like CSS Variables */
         :root {
-            --primary-color: #10a37f; /* ChatGPT green */
-            --primary-light: #18cd9f;
-            --accent-color: #6a0dad; /* A subtle purple/blue for some accents */
-            --bg-color: #f8f8f8; /* Light gray for body background */
-            --text-color: #303030; /* Darker text */
-            --text-light: #606060;
-            --sidebar-bg: #202123; /* Dark background for sidebar */
-            --sidebar-text: #ececf1;
-            --chat-bg: #ffffff; /* White chat background */
-            --user-message-bg: #e0e7ff; /* Lighter blue for user messages, or a very light gray if preferred */
-            --bot-message-bg: #f7f7f8; /* Very light gray for bot messages */
-            --code-bg: #2d2d2d; /* Dark code blocks */
-            --code-text-color: #f8f8f2; /* Light text for code */
-            --border-radius: 10px; /* Slightly more rounded corners for main elements */
-            --border-radius-sm: 6px; /* Smaller radius for buttons/inputs */
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Softer shadows */
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.2s ease-in-out; /* Smooth transitions */
+            --primary-color: #10a37f;
+            --primary-hover: #0d8b6e;
+            --secondary-color: #6c757d;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-muted: #8e8ea0;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f7f8;
+            --bg-tertiary: #ececf1;
+            --border-light: #e5e5e5;
+            --border-medium: #d1d5db;
+            --sidebar-bg: #f9f9f9;
+            --sidebar-hover: #f0f0f0;
+            --sidebar-active: #e7e7e7;
+            --chat-user-bg: #f7f7f8;
+            --chat-assistant-bg: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --font-sans: 'Söhne', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
         }
 
         /* Dark Mode Variables */
         .dark-mode {
-            --primary-color: #10a37f;
-            --primary-light: #18cd9f;
-            --accent-color: #6a0dad;
-            --bg-color: #343541; /* Dark background */
-            --text-color: #d1d5db; /* Lighter text */
-            --text-light: #a0a0a0;
-            --sidebar-bg: #202123; /* Same dark sidebar */
-            --sidebar-text: #ececf1;
-            --chat-bg: #343541; /* Dark chat background */
-            --user-message-bg: #40414f; /* Slightly darker user messages */
-            --bot-message-bg: #40414f; /* Consistent dark bot messages */
-            --code-bg: #2d2d2d;
-            --code-text-color: #f8f8f2;
-            --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 6px 10px rgba(0, 0, 0, 0.3);
+            --text-primary: #ececf1;
+            --text-secondary: #c5c5d2;
+            --text-muted: #8e8ea0;
+            --bg-primary: #212121;
+            --bg-secondary: #2f2f2f;
+            --bg-tertiary: #3c3c3c;
+            --border-light: #3e3e3e;
+            --border-medium: #4a4a4a;
+            --sidebar-bg: #171717;
+            --sidebar-hover: #2f2f2f;
+            --sidebar-active: #3c3c3c;
+            --chat-user-bg: #2f2f2f;
+            --chat-assistant-bg: #212121;
         }
 
-        /* Base Styles */
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
@@ -57,462 +62,231 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: var(--transition);
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
             display: flex;
-            min-height: 100vh; /* Ensures body takes full viewport height */
-            overflow: hidden; /* Prevents body scroll when sidebar is fixed */
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Sidebar Styles */
         .sidebar {
-            width: 260px; /* Slightly narrower like ChatGPT */
-            background: var(--sidebar-bg);
-            color: var(--sidebar-text);
-            padding: 16px; /* Reduced padding slightly */
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-light);
             display: flex;
             flex-direction: column;
-            height: 100vh;
             flex-shrink: 0;
-            transition: width 0.3s ease, padding 0.3s ease, transform 0.3s ease;
-            overflow-x: hidden;
+            transition: all 0.3s ease;
             position: relative;
             z-index: 100;
-            border-right: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border */
         }
 
         .sidebar.collapsed {
-            width: 70px; /* Collapsed width */
-            padding: 16px 10px; /* Adjust padding for collapsed state */
-            min-width: 70px; /* Ensures it collapses to this width */
+            width: 0;
+            min-width: 0;
+            overflow: hidden;
         }
 
-        /* Main Content Styles */
-        .main {
-            flex: 1; /* Takes remaining space */
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* Ensure main also takes full viewport height */
-            margin-left: 260px; /* Default margin for desktop, equals sidebar width */
-            transition: margin-left 0.3s ease;
-            position: relative; /* For z-index context */
-        }
-
-        .main.full-width { /* Applied when sidebar is collapsed on desktop */
-            margin-left: 70px; /* Adjusted margin when sidebar is collapsed */
-        }
-
-        .main.full-screen { /* For true full screen chat (sidebar hidden) */
-            margin-left: 0;
-            width: 100%;
-        }
-
-        /* Floating sidebar toggle button */
-        #showSidebarBtn {
-            display: none; /* Hidden by default for desktop, shown by JS on mobile */
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1000;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            width: 44px; /* Slightly larger for touch targets */
-            height: 44px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-            align-items: center;
-            justify-content: center;
-        }
-
-        #showSidebarBtn:hover {
-            background: var(--primary-light);
-            transform: scale(1.05);
-        }
-
-        /* Sidebar Toggle button inside the sidebar header */
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            color: var(--sidebar-text);
-            font-size: 1.3rem; /* Slightly smaller for internal toggle */
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .sidebar-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar.collapsed .sidebar-toggle {
-            transform: rotate(180deg); /* Rotate for collapsed state */
-        }
-
-        /* Responsive Adjustments */
-        @media (min-width: 769px) {
-            .main {
-                margin-left: 260px; /* Default margin for desktop */
-            }
-            .sidebar.collapsed + .main { /* When sidebar is collapsed, main takes full width */
-                margin-left: 70px; /* Adjusted margin when sidebar is collapsed */
-            }
-            /* #showSidebarBtn is now used on desktop too when sidebar is fully hidden */
-        }
-
-        @media (max-width: 768px) {
-            /* On mobile, sidebar is fixed and slides out */
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100%;
-                transform: translateX(-100%); /* Hidden off-screen */
-                width: 260px; /* Fixed width when visible */
-                z-index: 100; /* Ensure it's above main content */
-                box-shadow: var(--shadow-md);
-            }
-            .sidebar.visible { /* Class to show sidebar on mobile */
-                transform: translateX(0);
-            }
-            .main {
-                margin-left: 0; /* Main content always full width on mobile */
-            }
-            #showSidebarBtn {
-                display: flex !important; /* Show floating button on mobile */
-            }
-            /* Hide most sidebar content when collapsed on desktop, or when mobile */
-            .sidebar.collapsed .sidebar-header span,
-            .sidebar.collapsed .new-chat-btn span,
-            .sidebar.collapsed #chat-history-list,
-            .sidebar.collapsed .sidebar-footer > *:not(.sidebar-toggle) { /* Exclude toggle for specific hide */
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.1s ease;
-            }
-            /* Show content when not collapsed on desktop, or when mobile and visible */
-            .sidebar:not(.collapsed) .sidebar-header span,
-            .sidebar:not(.collapsed) .new-chat-btn span,
-            .sidebar:not(.collapsed) #chat-history-list,
-            .sidebar:not(.collapsed) .sidebar-footer > *:not(.sidebar-toggle) {
-                opacity: 1;
-                pointer-events: all;
-            }
-        }
-
-        /* Sidebar Content */
         .sidebar-header {
+            padding: 18px 16px;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
         }
 
         .sidebar-logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
-            white-space: nowrap;
+            gap: 8px;
         }
 
         .sidebar-logo i {
-            color: var(--primary-light); /* Accent color for the robot icon */
-            text-shadow: 0 0 5px rgba(24, 205, 159, 0.3); /* Subtle glow */
+            color: var(--primary-color);
+            font-size: 20px;
         }
 
-        .sidebar.collapsed .sidebar-logo {
-            justify-content: center;
-            width: 100%;
-        }
-
-        .sidebar.collapsed .sidebar-logo span {
-            display: none;
-        }
-
-        .new-chat-btn {
-            background: var(--primary-color);
-            color: white;
+        .sidebar-toggle {
+            background: none;
             border: none;
-            padding: 12px;
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .new-chat-btn {
+            margin: 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
             font-weight: 500;
-            box-shadow: var(--shadow);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 14px;
         }
 
         .new-chat-btn:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .sidebar.collapsed .new-chat-btn {
-            padding: 12px;
-            justify-content: center;
-            width: 50px; /* Make it square for icon */
-            height: 50px;
-            border-radius: 50%; /* Make it circular */
-        }
-
-        .sidebar.collapsed .new-chat-btn span {
-            display: none;
+            background-color: var(--primary-hover);
         }
 
         #chat-history-list {
             flex: 1;
             overflow-y: auto;
-            margin-bottom: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.1);
-        }
-
-        #chat-history-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #chat-history-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        #chat-history-list::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
-            border-radius: 10px;
+            padding: 0 8px;
+            margin-bottom: 16px;
         }
 
         .chat-link {
-            padding: 10px 12px;
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: var(--transition);
-            color: var(--sidebar-text);
-            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
-            position: relative; /* For positioning action buttons */
+            padding: 8px 12px;
+            margin-bottom: 2px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
         .chat-link:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background-color: var(--sidebar-hover);
         }
 
         .chat-link.active {
-            background: rgba(255, 255, 255, 0.15); /* More subtle active state for history */
-            font-weight: 500;
+            background-color: var(--sidebar-active);
+            color: var(--text-primary);
         }
 
-        .sidebar.collapsed .chat-link {
-            width: 50px; /* Square for icons */
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            font-size: 1.1rem;
-            border-radius: 50%; /* Make them circular when collapsed */
-        }
-
-        .sidebar.collapsed .chat-link span {
-            display: none;
-        }
-        
-        /* Chat Link Actions (Rename/Delete) */
         .chat-link-actions {
             display: flex;
-            gap: 5px;
-            margin-left: auto; /* Push to the right */
+            gap: 4px;
+            margin-left: auto;
             opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-            pointer-events: none; /* Initially non-interactive */
+            transition: opacity 0.2s ease;
         }
 
-        .chat-link:hover .chat-link-actions,
-        .chat-link.active .chat-link-actions { /* Show actions on hover or when active */
+        .chat-link:hover .chat-link-actions {
             opacity: 1;
-            pointer-events: all;
         }
 
         .chat-link-actions button {
             background: none;
             border: none;
-            color: var(--sidebar-text);
-            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-size: 12px;
             cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
         }
 
         .chat-link-actions button:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .chat-link-actions button.delete-chat-btn {
-            color: #ff6b6b; /* Red for delete */
-        }
-        .chat-link-actions button.delete-chat-btn:hover {
-            background: rgba(255, 107, 107, 0.3);
-        }
-
-        .sidebar.collapsed .chat-link-actions {
-            display: none; /* Hide actions when sidebar is collapsed */
+            background-color: var(--sidebar-hover);
         }
 
         .sidebar-footer {
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-top: 1px solid var(--border-light);
         }
 
         .sidebar-btn {
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 10px 12px;
-            text-align: left;
+            padding: 8px 12px;
             background: none;
             border: none;
-            color: var(--sidebar-text);
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 14px;
             cursor: pointer;
-            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
             text-decoration: none;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.95rem;
+            margin-bottom: 4px;
         }
 
         .sidebar-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background-color: var(--sidebar-hover);
         }
 
         .sidebar-btn i {
-            margin-right: 10px;
-            width: 20px; /* Fixed width for icons */
+            margin-right: 12px;
+            width: 16px;
             text-align: center;
-            font-size: 1rem;
-        }
-
-        .sidebar.collapsed .sidebar-btn {
-            justify-content: center;
-            padding: 12px 0;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-        }
-
-        .sidebar.collapsed .sidebar-btn i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-
-        .sidebar.collapsed .sidebar-btn span { /* NEW: Hide text for sidebar buttons when collapsed */
-            display: none;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: var(--sidebar-text);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
         }
 
-        .user-info i {
-            font-size: 1.2rem;
-            color: var(--accent-color); /* Use accent color for user icon */
-        }
-
-        .user-email {
-            font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .sidebar.collapsed .user-info {
-            justify-content: center;
-            padding: 10px 0;
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 15px auto;
-            border-radius: 50%;
-        }
-
-        .sidebar.collapsed .user-info i {
-            font-size: 1.4rem;
-            margin-right: 0;
-        }
-
-        .sidebar.collapsed .user-info .user-email {
-            display: none;
-        }
-
-        /* Top Bar Styles (Main content header) */
-        .top-bar {
-            padding: 12px 20px;
-            background-color: var(--chat-bg);
+        /* Main Content */
+        .main {
+            flex: 1;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Subtle bottom border */
+            flex-direction: column;
+            background-color: var(--bg-primary);
+            position: relative;
+            overflow: hidden;
         }
 
-        .dark-mode .top-bar {
-            border-bottom-color: rgba(255, 255, 255, 0.05);
+        .main.full-width {
+            width: 100%;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            padding: 16px 24px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
         }
 
         .top-bar-title {
+            font-size: 18px;
             font-weight: 600;
-            font-size: 1.1rem;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-color);
         }
 
         .top-bar-title i {
-            color: var(--primary-light); /* Accent color for the logo in top bar */
-            text-shadow: 0 0 5px rgba(24, 205, 159, 0.3);
+            color: var(--primary-color);
+            font-size: 20px;
         }
 
         .top-bar-actions {
@@ -523,142 +297,84 @@
         .action-btn {
             background: none;
             border: none;
-            color: var(--text-color);
-            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-size: 16px;
             cursor: pointer;
-            padding: 6px;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
+            transition: all 0.2s ease;
         }
 
         .action-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
+            background-color: var(--bg-secondary);
         }
 
-        .dark-mode .action-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Full screen button with tooltip */
-        .full-screen-btn {
-            position: relative;
-        }
-
-        .full-screen-btn .tooltip {
-            position: absolute;
-            bottom: 120%; /* Position above button */
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8); /* Darker tooltip background */
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease-in-out;
-            z-index: 100;
-        }
-
-        .full-screen-btn:hover .tooltip {
-            opacity: 1;
-        }
-
-        /* Chat Container Styles */
+        /* Chat Container */
         .chat-container {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
-            background-color: var(--chat-bg);
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) var(--chat-bg);
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px; /* Spacing between messages */
-            font-size: 1rem;
-            line-height: 1.6;
-            scroll-behavior: smooth;
+            gap: 24px;
         }
 
         .chat-container::-webkit-scrollbar {
-            width: 8px;
+            width: 4px;
         }
 
         .chat-container::-webkit-scrollbar-track {
-            background: var(--chat-bg);
-            border-radius: 10px;
+            background: transparent;
         }
 
         .chat-container::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
-            border-radius: 10px;
-            border: 2px solid var(--chat-bg);
+            background-color: var(--border-medium);
+            border-radius: 2px;
         }
 
-        .chat-container::-webkit-scrollbar-thumb:hover {
-            background-color: var(--primary-light);
-        }
-
-        /* Individual Chat Message Styles */
+        /* Chat Messages */
         .chat-message {
-            /* Max width to keep messages readable, centered in the chat container */
-            max-width: 768px; /* Standard readable width for content */
-            margin-left: auto; /* For user messages */
-            margin-right: auto; /* For bot messages */
-            padding: 16px 20px;
-            border-radius: var(--border-radius);
-            word-break: break-word;
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            border-radius: var(--radius-lg);
             position: relative;
-            background-color: var(--bot-message-bg);
-            color: var(--text-color);
-            font-size: 1rem;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-            animation: fadeIn 0.3s ease-out; /* Fade in animation for new messages */
+            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .user-message {
-            background-color: var(--user-message-bg);
-            /* Overriding margin to ensure it aligns right */
-            margin-left: auto;
-            margin-right: 0;
-            border-bottom-right-radius: 4px; /* Slightly different corner for visual flair */
+            background-color: var(--chat-user-bg);
+            border: 1px solid var(--border-light);
         }
 
         .bot-message {
-            background-color: var(--bot-message-bg);
-            /* Overriding margin to ensure it aligns left */
-            margin-right: auto;
-            margin-left: 0;
-            border-bottom-left-radius: 4px; /* Slightly different corner for visual flair */
+            background-color: var(--chat-assistant-bg);
+            border: 1px solid var(--border-light);
         }
 
         .message-header {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             font-weight: 600;
-            font-size: 0.9em;
-            color: var(--text-light); /* Make header text slightly lighter */
-        }
-
-        .message-timestamp {
-            font-weight: normal;
-            font-size: 0.8em;
-            opacity: 0.7;
-            margin-left: auto; /* Push timestamp to the right */
-            color: var(--text-light);
+            font-size: 14px;
+            color: var(--text-primary);
         }
 
         .message-header i {
@@ -666,404 +382,250 @@
             color: var(--primary-color);
         }
 
+        .message-timestamp {
+            font-weight: 400;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
         .message-content {
-            margin-top: 10px;
-            color: var(--text-color);
+            color: var(--text-primary);
+            line-height: 1.7;
         }
 
         .message-content p {
-            margin-bottom: 10px; /* Space between paragraphs in messages */
+            margin-bottom: 12px;
         }
 
         .message-content p:last-child {
-            margin-bottom: 0; /* No extra margin on last paragraph */
+            margin-bottom: 0;
         }
 
-        /* Code Block Styles */
-        pre {
-            background-color: var(--code-bg) !important;
-            border-radius: var(--border-radius-sm);
-            padding: 16px !important;
-            margin: 12px 0;
-            overflow-x: auto;
-            white-space: pre-wrap; /* Ensure code wraps */
-            box-shadow: var(--shadow);
-        }
-
-        code {
-            font-family: 'Fira Code', monospace !important; /* Specific code font */
-            font-size: 0.9rem !important;
-            color: var(--code-text-color) !important;
+        /* Code Blocks */
+        .code-block {
+            margin: 16px 0;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: #1a1a1a;
         }
 
         .code-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.2); /* Semi-transparent header */
-            padding: 6px 12px;
-            border-top-left-radius: var(--border-radius-sm);
-            border-top-right-radius: var(--border-radius-sm);
-            margin-bottom: -10px; /* Pulls header slightly over code block */
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
+            padding: 12px 16px;
+            background-color: #2d2d2d;
+            border-bottom: 1px solid #404040;
         }
 
         .code-language {
+            font-size: 12px;
             font-weight: 500;
+            color: #a0a0a0;
         }
 
         .copy-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: none;
             border: none;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
+            color: #a0a0a0;
+            font-size: 12px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
         }
 
         .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background-color: #404040;
+            color: white;
         }
 
-        /* Input Area Styles */
+        pre {
+            background-color: #1a1a1a !important;
+            padding: 16px !important;
+            margin: 0 !important;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Input Area */
         .input-area {
-            padding: 16px 20px; /* Increased padding */
-            background-color: var(--chat-bg);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            position: sticky; /* Stays at the bottom */
-            bottom: 0;
-            z-index: 10;
-        }
-
-        .dark-mode .input-area {
-            border-top-color: rgba(255, 255, 255, 0.05);
+            padding: 24px;
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-light);
         }
 
         .input-container {
+            max-width: 768px;
+            margin: 0 auto;
             display: flex;
             gap: 8px;
-            width: 100%;
-            max-width: 768px; /* Max width to match chat messages */
-            margin: 0 auto; /* Center the input container */
-            flex-wrap: nowrap; /* Prevent wrapping by default */
-            align-items: flex-end; /* Align items to the bottom */
+            align-items: flex-end;
         }
 
-        .main.full-screen .input-container {
-            max-width: 900px; /* Slightly wider in full screen mode */
+        .model-select-group {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
         }
-        
+
+        .model-select-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .model-select-group label:hover {
+            color: var(--text-primary);
+        }
+
+        .model-select-group input[type="radio"] {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-medium);
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .model-select-group input[type="radio"]:checked {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .model-select-group input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 50%;
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
         #text-input {
             flex: 1;
-            min-width: 0; /* Allows text input to shrink properly */
+            min-height: 48px;
+            max-height: 200px;
             padding: 12px 16px;
-            border: none; /* No border for clean look */
-            background: rgba(0, 0, 0, 0.03); /* Light background for input */
-            color: var(--text-color);
-            font-size: 1rem;
-            resize: none; /* Disable manual resize */
-            overflow-y: hidden; /* Hide scrollbar initially */
-            min-height: 48px; /* Match button height */
-            line-height: 1.5;
-            max-height: 200px; /* Max height before scroll */
-            border-radius: var(--border-radius-sm);
-            transition: var(--transition);
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* Subtle inner shadow */
-        }
-
-        .dark-mode #text-input {
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-sans);
+            resize: none;
+            outline: none;
+            transition: all 0.2s ease;
         }
 
         #text-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.2), inset 0 1px 2px rgba(0,0,0,0.05); /* Focus ring with primary color */
-        }
-        .dark-mode #text-input:focus {
-            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.2), inset 0 1px 2px rgba(255,255,255,0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
         }
 
-        /* Plus icon for file input */
-        .file-input-label {
-            flex: 0 0 auto;
-            width: 48px; /* Square button */
+        .file-input-label,
+        #voice-talk-btn {
+            width: 48px;
             height: 48px;
-            border-radius: var(--border-radius-sm);
-            background-color: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            display: flex; /* Always display as a button */
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem; /* Larger icon */
-            transition: var(--transition);
-            position: relative; /* For file input overlay */
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .file-input-label:hover {
-            background-color: var(--primary-light);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Crucial fix for mobile file input interaction */
-        .camera-option input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0; /* Make it completely transparent */
-            cursor: pointer;
-            z-index: 1; /* Ensure it's clickable above the div content */
-            /* REMOVED display: none; from here */
-        }
-
-
-        .submit-btn, .stop-btn { /* Apply common styles to both send and stop */
-            flex: 0 0 auto; /* Keep button fixed size */
-            padding: 12px 20px;
-            border-radius: var(--border-radius-sm);
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-light);
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: var(--shadow);
-            width: 100px; /* Fixed width for Send/Stop */
-            justify-content: center; /* Center content */
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
         }
 
-        .submit-btn:hover, .stop-btn:hover {
-            background-color: var(--primary-light);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+        .file-input-label:hover,
+        #voice-talk-btn:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--border-medium);
         }
 
-        .submit-btn:active, .stop-btn:active {
-            transform: translateY(0);
-        }
-
-        .stop-btn {
-            background-color: #ff6b6b; /* Red for stop button */
-            display: none; /* Hidden by default */
-        }
-
-        .stop-btn:hover {
-            background-color: #e65a5a;
-        }
-
-
-        /* New Web Search Button Styling */
         #web-search-btn {
-            background-color: #6c757d; /* A neutral gray */
-            color: white;
-            border: none;
-            padding: 12px 16px; /* Slightly adjusted padding to look good */
-            border-radius: var(--border-radius-sm);
-            cursor: pointer;
+            padding: 12px 16px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            font-size: 14px;
             font-weight: 500;
-            transition: var(--transition);
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            box-shadow: var(--shadow);
-            flex: 0 0 auto; /* Ensure it stays fixed size */
-            width: 120px; /* Fixed width for Web Search */
-            justify-content: center; /* Center content */
         }
 
         #web-search-btn:hover {
-            background-color: #5a6268; /* Darker gray on hover */
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        /* Dark mode for web search button */
-        .dark-mode #web-search-btn {
-            background-color: #555;
-        }
-        .dark-mode #web-search-btn:hover {
-            background-color: #777;
+            background-color: var(--bg-tertiary);
+            border-color: var(--border-medium);
         }
 
-        /* Voice Talk Button Styling */
-        #voice-talk-btn {
-            flex: 0 0 auto;
-            width: 48px; /* Square button */
-            height: 48px;
-            border-radius: var(--border-radius-sm);
-            background-color: #007bff; /* Blue for voice button */
+        .submit-btn,
+        .stop-btn {
+            background-color: var(--primary-color);
             color: white;
             border: none;
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
+            font-weight: 500;
             cursor: pointer;
-            font-size: 1.2rem;
-            transition: var(--transition);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow);
+            gap: 8px;
+            font-size: 14px;
         }
 
-        #voice-talk-btn:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+        .submit-btn:hover {
+            background-color: var(--primary-hover);
         }
 
-        #voice-talk-btn.listening {
-            background-color: var(--primary-color); /* Green when listening */
-            animation: pulse-mic 1s infinite alternate;
+        .stop-btn {
+            background-color: #ef4444;
+            display: none;
         }
 
-        #voice-talk-btn.speaking {
-            background-color: var(--accent-color); /* Purple when speaking */
-            animation: pulse-mic 1s infinite alternate;
-        }
-
-        @keyframes pulse-mic {
-            from { transform: scale(1); opacity: 1; }
-            to { transform: scale(1.05); opacity: 0.8; }
-        }
-
-
-        /* Image Preview in Input Area */
-        .image-preview-container {
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-            align-items: flex-start;
-            position: relative;
-        }
-        .dark-mode .image-preview-container {
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        .image-preview-container img {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: var(--border-radius-sm);
-            object-fit: contain;
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: var(--shadow);
-        }
-        .dark-mode .image-preview-container img {
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        .clear-image-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .clear-image-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        /* Responsive adjustments for input */
-        @media (max-width: 768px) {
-            .input-container {
-                flex-wrap: wrap; /* Allow wrapping */
-                align-items: flex-end; /* Align items to the bottom */
-                /* Ensure enough horizontal space for buttons */
-                justify-content: space-between; /* Distribute items with space between */
-            }
-            
-            #text-input {
-                flex: 1 1 100%; /* Take full width on its own line */
-                order: 1; /* First element */
-                margin-bottom: 8px; /* Space below text input */
-            }
-            
-            .file-input-label,
-            #voice-talk-btn {
-                flex: 0 0 auto; /* Keep fixed size */
-                width: 48px;
-                height: 48px;
-                order: 2; /* Next to each other */
-            }
-
-            #file-input-label {
-                margin-right: 8px; /* Space between plus and mic */
-            }
-
-            #web-search-btn {
-                flex: 1 1 auto; /* Allow search button to grow */
-                order: 3; /* After plus and mic */
-                min-width: 80px; /* Ensure it doesn't get too small */
-                max-width: 120px; /* Prevent it from getting too wide */
-                margin-left: 8px; /* Add margin to the left of search button */
-                margin-right: 8px; /* Space before send */
-            }
-
-            .submit-btn, .stop-btn {
-                flex: 0 0 auto; /* Fixed size */
-                width: 100px; /* Fixed width for send/stop */
-                order: 4; /* Last in the row */
-            }
-
-            /* Adjust spacing when voice mode is active */
-            .input-container.voice-active #voice-talk-btn {
-                order: 1;
-                margin-right: 8px; /* Space between mic and indicator */
-                margin-left: 0; /* Remove auto-margin */
-            }
-
-            .input-container.voice-active .voice-indicator-area {
-                flex: 1 1 auto; /* Take remaining horizontal space */
-                order: 2;
-            }
+        .stop-btn:hover {
+            background-color: #dc2626;
         }
 
         /* Loading Indicator */
         .loader {
-            display: none; /* Hidden by default */
+            display: none;
             padding: 16px;
             text-align: center;
-            color: var(--text-color);
         }
 
         .typing-indicator {
             display: flex;
-            padding: 10px;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
+            padding: 8px;
         }
 
         .typing-dot {
             width: 8px;
             height: 8px;
-            background-color: var(--primary-color); /* Primary color for dots */
+            background-color: var(--primary-color);
             border-radius: 50%;
-            opacity: 0.4;
             animation: typingAnimation 1.4s infinite ease-in-out;
         }
 
@@ -1073,10 +635,422 @@
 
         @keyframes typingAnimation {
             0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-4px); opacity: 1; } /* Bounce effect */
+            30% { transform: translateY(-8px); opacity: 1; }
         }
 
-        /* Special Message Components */
+        /* Floating Sidebar Button */
+        #showSidebarBtn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        #showSidebarBtn:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        /* Image Preview */
+        .image-preview-container {
+            display: none;
+            max-width: 768px;
+            margin: 0 auto 16px;
+            padding: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-secondary);
+        }
+
+        .image-preview-container img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+        }
+
+        .clear-image-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-primary);
+            padding: 24px;
+            border-radius: var(--radius-xl);
+            max-width: 90%;
+            width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-content p {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn.cancel {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.cancel:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .modal-btn.confirm {
+            background-color: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .modal-btn.confirm:hover {
+            background-color: #dc2626;
+        }
+
+        /* Camera Options */
+        .camera-options {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-light);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            padding: 24px;
+        }
+
+        .camera-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-option:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .camera-option.cancel {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .camera-option.cancel:hover {
+            background-color: #fee2e2;
+        }
+
+        .camera-option input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        /* Voice Mode Overlay */
+        #voice-mode-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #voice-mode-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #voice-mode-overlay .status-text {
+            font-size: 18px;
+            margin-bottom: 32px;
+            color: #a0a0a0;
+        }
+
+        #voice-circle-canvas {
+            border-radius: 50%;
+            margin-bottom: 32px;
+        }
+
+        #voice-mode-overlay .control-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        #voice-mode-overlay .control-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #voice-mode-overlay .control-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #voice-mode-overlay .control-button.mic-active {
+            background-color: var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            #showSidebarBtn {
+                display: flex;
+            }
+
+            .chat-container {
+                padding: 16px;
+            }
+
+            .chat-message {
+                padding: 16px;
+            }
+
+            .input-area {
+                padding: 16px;
+            }
+
+            .input-container {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            #text-input {
+                width: 100%;
+                order: 1;
+            }
+
+            .file-input-label,
+            #voice-talk-btn {
+                order: 2;
+            }
+
+            #web-search-btn {
+                order: 3;
+                flex: 1;
+            }
+
+            .submit-btn,
+            .stop-btn {
+                order: 4;
+                flex: 1;
+            }
+
+            .model-select-group {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Full Screen Mode */
+        body.full-screen-mode .sidebar {
+            transform: translateX(-100%);
+        }
+
+        body.full-screen-mode .main {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        body.full-screen-mode #showSidebarBtn {
+            display: flex;
+        }
+
+        /* Additional utility classes */
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .fadeIn {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Voice indicator area */
+        .voice-indicator-area {
+            flex: 1;
+            min-height: 48px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .input-container.voice-active .voice-indicator-area {
+            display: flex;
+        }
+
+        #voice-status-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Message images */
+        .message-images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .message-images-container img,
+        .uploaded-image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            object-fit: contain;
+        }
+
+        /* Message actions */
+        .message-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .message-action-btn {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .message-action-btn:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        /* Section styling */
         .message-section {
             margin-bottom: 16px;
         }
@@ -1088,536 +1062,69 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .section-title i {
-            font-size: 0.9rem;
+            font-size: 14px;
         }
 
         .example-item {
-            background: rgba(0, 0, 0, 0.05);
-            padding: 10px 12px;
-            border-radius: 6px;
+            background-color: var(--bg-secondary);
+            padding: 12px;
+            border-radius: var(--radius-md);
             margin-bottom: 8px;
             border-left: 3px solid var(--primary-color);
-            transition: var(--transition);
+            transition: all 0.2s ease;
         }
 
         .example-item:hover {
-            background: rgba(0, 0, 0, 0.08);
-        }
-
-        .dark-mode .example-item {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .dark-mode .example-item:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background-color: var(--bg-tertiary);
         }
 
         .example-title {
             font-weight: 500;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            color: var(--text-primary);
         }
 
-        .message-with-image {
+        /* Code update modal */
+        #codeUpdateModal .modal-content {
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
             display: flex;
             flex-direction: column;
-            gap: 12px;
         }
 
-        .message-images-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 10px;
+        #codeUpdateModal textarea {
+            flex: 1;
+            min-height: 200px;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            resize: vertical;
         }
 
-        .message-images-container img {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: var(--border-radius-sm);
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: var(--shadow);
-            object-fit: contain;
-        }
-
-        .dark-mode .message-images-container img {
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        .uploaded-image-preview {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: var(--border-radius-sm);
-            margin-top: 10px;
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: var(--shadow);
-            object-fit: contain;
-        }
-
-        .dark-mode .uploaded-image-preview {
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        /* Camera Options (for mobile) */
-        .camera-options {
-            display: none; /* Hidden by default, shown on mobile for image upload */
-            position: fixed;
-            bottom: 80px; /* Position above the input area */
-            left: 0;
-            right: 0;
-            background: var(--sidebar-bg); /* Use sidebar background for consistency */
-            padding: 16px;
-            border-radius: 16px 16px 0 0; /* Rounded top corners */
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-            z-index: 1000;
-            animation: slideUp 0.3s ease-out; /* Slide up animation */
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .camera-option {
-            padding: 14px;
-            margin: 8px 0;
-            background: var(--primary-color);
-            color: white;
-            border-radius: var(--border-radius-sm);
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 500;
-            position: relative; /* For the hidden input */
-            overflow: hidden; /* Hide the overflow of the input */
-        }
-        .camera-option:hover {
-            background: var(--primary-light);
-        }
-        .camera-option.cancel {
-            background: #ff6b6b; /* Red for cancel */
-        }
-        .camera-option.cancel:hover {
-            background: #e65a5a;
-        }
-
-        /* Make hidden file inputs fill their parent .camera-option */
-        .camera-option input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0; /* Make it completely transparent */
-            cursor: pointer;
-            z-index: 1; /* Ensure it's clickable above the div content */
-            /* REMOVED display: none; from here */
-        }
-
-
-        /* Message Actions (e.g., Summarize) */
-        .message-actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end; /* Align actions to the right */
-        }
-
-        .message-action-btn {
-            background: rgba(0,0,0,0.05); /* Light background for action buttons */
-            color: var(--text-color);
-            border: none;
-            padding: 6px 12px;
-            border-radius: var(--border-radius-sm);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .dark-mode .message-action-btn {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .message-action-btn:hover {
-            background: rgba(0,0,0,0.1);
-        }
-        .dark-mode .message-action-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Confirmation Modal Styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .modal-content {
-            background: var(--chat-bg);
-            padding: 24px;
-            border-radius: var(--border-radius);
-            max-width: 90%;
-            width: 400px;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
+        #codeUpdateModal select {
+            padding: 8px 12px;
             margin-bottom: 16px;
-            color: var(--text-color);
-            font-size: 1.2rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
         }
 
-        .modal-content p {
-            margin-bottom: 24px;
-            color: var(--text-light);
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: var(--border-radius-sm);
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-            flex: 1; /* Distribute space evenly */
-            max-width: 120px; /* Max width for buttons */
-        }
-
-        .modal-btn.confirm {
-            background-color: #ff6b6b; /* Red for destructive action */
-            color: white;
-        }
-
-        .modal-btn.confirm:hover {
-            background-color: #e65a5a;
-        }
-
-        .modal-btn.cancel {
-            background-color: rgba(0, 0, 0, 0.05);
-            color: var(--text-color);
-        }
-
-        .dark-mode .modal-btn.cancel {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .modal-btn.cancel:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        .dark-mode .modal-btn.cancel:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Full screen mode adjustments */
-        body.full-screen-mode .sidebar {
-            transform: translateX(-100%);
-        }
-
-        body.full-screen-mode .main {
-            margin-left: 0;
-            width: 100%;
-        }
-
-        body.full-screen-mode #showSidebarBtn {
-            display: flex; /* Show floating button when in full screen */
-        }
-
-        /* Tooltip (general) */
-        .tooltip-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8); /* Tooltip background matches text color */
-            color: white; /* Tooltip text matches background color */
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            z-index: 100;
-            margin-bottom: 8px;
-        }
-
-        .tooltip-container:hover .tooltip {
-            opacity: 1;
-        }
-
-        /* Gradient accent for some elements (if desired) */
-        .gradient-accent {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-        }
-
-        /* Pulse animation for new messages */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.01); } /* Subtle pulse */
-            100% { transform: scale(1); }
-        }
-
-        .pulse {
-            animation: pulse 0.5s ease;
-        }
-        /* Style for model selection radio buttons */
-        .model-select-group {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem; /* Increased gap for better spacing */
-            margin-bottom: 1rem; /* Space below the radio buttons */
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Subtle separator */
-        }
-        .dark-mode .model-select-group {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .model-select-group label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            font-size: 0.95rem; /* Slightly larger font */
-            color: var(--text-color);
-            transition: color 0.2s ease;
-        }
-
-        .model-select-group label:hover {
-            color: var(--primary-color); /* Highlight on hover */
-        }
-
-        .model-select-group input[type="radio"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 18px; /* Custom radio button size */
-            height: 18px;
-            border: 2px solid var(--text-light); /* Border color */
-            border-radius: 50%;
-            margin-right: 8px;
-            position: relative;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .model-select-group input[type="radio"]:checked {
-            border-color: var(--primary-color); /* Primary color when checked */
-            background-color: var(--primary-color);
-        }
-
-        .model-select-group input[type="radio"]:checked::before {
-            content: '';
-            display: block;
-            width: 8px; /* Inner circle */
-            height: 8px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        /* Voice Indicator Area Styling (for input bar when in voice mode) */
-        .voice-indicator-area {
-            flex: 1; /* Take up the space of the text input */
-            min-width: 0;
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.03); /* Match text input background */
-            border-radius: var(--border-radius-sm);
-            min-height: 48px; /* Match button height */
-            padding: 8px; /* Some padding */
-            gap: 5px; /* Space between dots and text */
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* Subtle inner shadow */
-            transition: var(--transition);
-        }
-
-        .dark-mode .voice-indicator-area {
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);
-        }
-
-        .voice-indicator-area .typing-indicator {
-            padding: 0; /* Remove padding from existing typing-indicator class */
-        }
-
-        #voice-status-text {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Ensure voice indicator area is visible when voice-active class is present */
-        .input-container.voice-active .voice-indicator-area {
-            display: flex; /* Force display when voice is active */
-        }
-
-        /* Hide other input elements when voice-active class is present */
-        /* REMOVED this section as the overlay will hide the main content */
-        /*
-        .input-container.voice-active #text-input,
-        .input-container.voice-active .file-input-label,
-        .input-container.voice-active #web-search-btn,
-        .input-container.voice-active .submit-btn,
-        .input-container.voice-active .stop-btn,
-        .input-container.voice-active .model-select-group {
-            display: none !important;
-        }
-        */
-
-        /* Responsive adjustments for input-container when voice-indicator-area is active */
-        @media (max-width: 768px) {
-            .input-container.voice-active #voice-talk-btn {
-                order: 1;
-                margin-right: 8px; /* Space between mic and indicator */
-                margin-left: 0; /* Remove auto-margin */
-            }
-
-            .input-container.voice-active .voice-indicator-area {
-                flex: 1 1 auto; /* Take remaining horizontal space */
-                order: 2;
-            }
-        }
-
-        /* Desktop behavior for voice-indicator-area */
-        @media (min-width: 769px) {
-            .input-container.voice-active #voice-talk-btn {
-                order: 1; /* Keep voice button visible and first */
-            }
-
-            .input-container.voice-active .voice-indicator-area {
-                flex: 1; /* Take remaining space */
-                order: 2; /* Place it after the voice button */
-            }
-        }
-
-        /* NEW: Voice Mode Overlay Styles */
-        #voice-mode-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #202123; /* Dark background similar to ChatGPT */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000; /* Ensure it's on top */
-            color: white;
-            transition: opacity 0.3s ease;
-            opacity: 0;
-            pointer-events: none; /* Initially non-interactive */
-        }
-
-        #voice-mode-overlay.active {
-            opacity: 1;
-            pointer-events: auto; /* Make interactive when active */
-        }
-
-        #voice-mode-overlay .status-text {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            color: #a0a0a0; /* Lighter grey for status */
-        }
-
-        #voice-mode-overlay .control-buttons {
-            position: absolute;
-            bottom: 50px; /* Position at the bottom */
-            display: flex;
-            gap: 20px;
-        }
-
-        #voice-mode-overlay .control-button {
-            background-color: #404040; /* Darker grey for buttons */
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 1.8rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-
-        #voice-mode-overlay .control-button:hover {
-            background-color: #555;
-            transform: translateY(-2px);
-        }
-
-        #voice-mode-overlay .control-button.mic-active {
-            background-color: var(--primary-color); /* Green when active */
-        }
-        #voice-mode-overlay .control-button.mic-active:hover {
-            background-color: var(--primary-light);
-        }
-
-        #voice-mode-overlay .control-button.screen-share-active {
-            background-color: #ff6b6b; /* Red for active screen share */
-        }
-        #voice-mode-overlay .control-button.screen-share-active:hover {
-            background-color: #e65a5a;
-        }
-
-        #voice-circle-canvas {
-            background-color: transparent; /* Canvas background */
-            border-radius: 50%; /* Make it circular */
-            /* Initial size, will be dynamic */
-            width: 200px;
-            height: 200px;
-            max-width: 80vw; /* Responsive sizing */
-            max-height: 80vw;
-        }
-
-        /* NEW: Screen Share Preview Container */
+        /* Screen share preview */
         #screen-share-preview-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); /* Dark overlay */
-            z-index: 999; /* Below voice mode overlay */
-            display: none; /* Hidden by default */
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            display: none;
             justify-content: center;
             align-items: center;
         }
@@ -1626,53 +1133,31 @@
             max-width: 90%;
             max-height: 90%;
             border: 2px solid var(--primary-color);
-            border-radius: var(--border-radius);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
         }
 
-        /* NEW: Code Update Modal */
-        #codeUpdateModal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1001; /* Above other modals */
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.7);
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 100;
+            margin-bottom: 8px;
         }
 
-        #codeUpdateModal .modal-content {
-            max-width: 800px;
-            width: 90%;
-            height: 80%;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        #codeUpdateModal textarea {
-            flex: 1;
-            width: 100%;
-            min-height: 150px;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid var(--text-light);
-            border-radius: var(--border-radius-sm);
-            background-color: var(--code-bg);
-            color: var(--code-text-color);
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            resize: vertical;
-        }
-
-        #codeUpdateModal select {
-            padding: 8px;
-            margin-bottom: 15px;
-            border-radius: var(--border-radius-sm);
-            border: 1px solid var(--text-light);
-            background-color: var(--bg-color);
-            color: var(--text-color);
+        .tooltip-container:hover .tooltip {
+            opacity: 1;
         }
     </style>
 </head>
@@ -1681,7 +1166,7 @@
         <div class="sidebar-header">
             <div class="sidebar-logo">
                 <i class="fas fa-robot"></i>
-                <span>Vexara</span>
+                <span>ChatGPT</span>
             </div>
             <!-- Renamed hideSidebarBtn to sidebarToggleButton for general use -->
             <button id="sidebarToggleButton" class="sidebar-toggle" title="Toggle Sidebar">
@@ -1703,11 +1188,11 @@
             </div>
             <button class="sidebar-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
                 <i class="fas fa-moon"></i>
-                <span>Dark Mode</span>
+                <span>Dark theme</span>
             </button>
-            <button class="sidebar-btn" id="clearAllChatsBtn" title="Clear All Chat History">
+            <button class="sidebar-btn" id="clearAllChatsBtn" title="Clear conversations">
                 <i class="fas fa-trash"></i>
-                <span>Clear All Chats</span>
+                <span>Clear conversations</span>
             </button>
             <a href="/logout" class="sidebar-btn" style="color: #ff6b6b;" title="Logout">
                 <i class="fas fa-sign-out-alt"></i>
@@ -1725,7 +1210,7 @@
         <div class="top-bar">
             <div class="top-bar-title">
                 <i class="fas fa-robot"></i>
-                <span>Vexara AI Assistant</span>
+                <span>ChatGPT</span>
             </div>
             <div class="top-bar-actions">
                 <button class="action-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
@@ -1755,25 +1240,25 @@
                 <div class="model-select-group">
                     <label for="modelGeneral">
                         <input type="radio" id="modelGeneral" name="modelChoice" value="general" checked>
-                        General Talk (Mistral)
+                        GPT-4o
                     </label>
                     <label for="modelDeepThink">
                         <input type="radio" id="modelDeepThink" name="modelChoice" value="deep_think">
-                        Deep Think (DeepSeek)
+                        o1-preview
                     </label>
                 </div>
 
                 <div class="input-container">
-                    <textarea id="text-input" name="instruction" placeholder="Send a message, 'generate image of a car', or type 'explain code', 'grammar check' etc." rows="1" required></textarea>
+                    <textarea id="text-input" name="instruction" placeholder="Message ChatGPT" rows="1" required></textarea>
                     
                     <!-- Original file-input-label now acts as the trigger for camera options -->
                     <label for="file-input-trigger" class="file-input-label" id="file-input-label">
-                        <i class="fas fa-plus"></i>
+                        <i class="fas fa-paperclip"></i>
                         <!-- No actual file input here anymore, just a trigger -->
                     </label>
                     <!-- Removed the original file-input from here -->
 
-                    <button type="button" id="web-search-btn" title="Web Search">
+                    <button type="button" id="web-search-btn" title="Search the web">
                         <i class="fas fa-globe"></i>
                         <span>Search</span>
                     </button>
@@ -1841,11 +1326,11 @@
     <!-- Confirmation Modal for Clear All Chats -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
-            <h3>Clear All Chats?</h3>
-            <p>Are you sure you want to clear all chat history? This action cannot be undone.</p>
+            <h3>Clear conversations?</h3>
+            <p>This will clear all your conversations and cannot be undone.</p>
             <div class="modal-buttons">
                 <button class="modal-btn cancel" onclick="hideModal()">Cancel</button>
-                <button class="modal-btn confirm" id="confirmClearBtn">Clear All</button>
+                <button class="modal-btn confirm" id="confirmClearBtn">Clear</button>
             </div>
         </div>
     </div>
@@ -1872,13 +1357,13 @@
     <div class="camera-options">
         <div class="camera-option" id="take-photo">
             <i class="fas fa-camera"></i>
-            <span>Take Photo</span>
+            <span>Take a photo</span>
             <!-- Hidden input directly inside the clickable area -->
             <input type="file" id="take-photo-input" name="image" accept="image/*" capture="environment"/>
         </div>
         <div class="camera-option" id="upload-photo">
-            <i class="fas fa-images"></i>
-            <span>Choose from Gallery</span>
+            <i class="fas fa-image"></i>
+            <span>Choose from library</span>
             <!-- Hidden input directly inside the clickable area -->
             <input type="file" id="upload-photo-input" name="image" accept="image/*"/>
         </div>
